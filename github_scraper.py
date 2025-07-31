@@ -39,4 +39,4 @@ if __name__ == "__main__":
     prs = get_pull_requests()
     print("\nSample Pull Requests:")
     for pr in prs:
-        print(f"- #{pr['number']} {pr['title']}")
+        print(f"- #{pr['number']} | title: {pr['title']} | name: {pr['user']['login']}")
