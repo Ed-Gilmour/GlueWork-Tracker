@@ -25,18 +25,17 @@ def get_pull_requests(state="open", per_page=5):
     response = requests.get(url, headers=HEADERS, params=params)
     return response.json()
 
-if __name__ == "__main__":
-    repo_info = get_repo_info()
-    print("Repo:", repo_info["full_name"])
-    print("Stars:", repo_info["stargazers_count"])
-    print("Forks:", repo_info["forks_count"])
+repo_info = get_repo_info()
+print("Repo:", repo_info["full_name"])
+print("Stars:", repo_info["stargazers_count"])
+print("Forks:", repo_info["forks_count"])
 
-    issues = get_issues()
-    print("\nSample Issues:")
-    for issue in issues:
-        print(f"- #{issue['number']} | title: {issue['title']} | name: {issue['user']['login']}")
+issues = get_issues()
+print("\nSample Issues:")
+for issue in issues:
+    print(f"- #{issue['number']} | {issue['title']} | name: {issue['user']['login']}")
 
-    prs = get_pull_requests()
-    print("\nSample Pull Requests:")
-    for pr in prs:
-        print(f"- #{pr['number']} | title: {pr['title']} | name: {pr['user']['login']}")
+prs = get_pull_requests()
+print("\nSample Pull Requests:")
+for pr in prs:
+    print(f"- #{pr['number']} | {pr['title']} | name: {pr['user']['login']}")
