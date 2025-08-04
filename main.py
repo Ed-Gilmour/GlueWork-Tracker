@@ -10,7 +10,7 @@ def main():
     else:
         scraper = GitHubScraper()
         texts = []
-        issues = scraper.get_issues()
+        issues = scraper.get_issues(per_page=5)
 
         for issue in issues:
             texts.append(scraper.get_issue_str(issue))
@@ -19,7 +19,7 @@ def main():
         indexer.build_index(embeddings)
         indexer.save_index("test_database")
 
-    results = indexer.search("Is there an issue on linux-17 losing external connection from a phone?", k=5)
+    results = indexer.search("Is there an issue from August 4th?", k=5)
     for match, score in results:
         print(f"Match: {match} (Distance: {score:.4f})")
 

@@ -2,7 +2,6 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import faiss
 import json
-import os
 
 class VectorIndexer:
     def __init__(self, model_name="all-mpnet-base-v2"):

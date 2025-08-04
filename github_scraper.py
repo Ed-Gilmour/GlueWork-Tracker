@@ -23,9 +23,16 @@ class GitHubScraper:
 
     def get_issue_str(self, issue):
         comments = self.get_issue_comments(issue['number'])
-        comments_str = "None"
+        comments_str = ""
         for comment in comments:
-            comments_str += f"- [{comment['created_at']}] {comment['user']['login']}: {comment['body']}\n"
+            comments_str += f"""
+- {comment['user']['login']} commented on {comment['created_at']}.
+Comment description:
+{comment['body']}
+
+"""
+        if(len(comments) == 0):
+            comments_str = "None"
 
         return f"""
 User {issue['user']['login']} created issue #{issue['number']} titled {issue['title']} on {issue['created_at']}.
