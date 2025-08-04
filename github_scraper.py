@@ -2,40 +2,44 @@ from dotenv import load_dotenv
 import os
 import requests
 
-load_dotenv()
+class GitHubScraper:
+    def __init__(self):
+        load_dotenv()
+        self.github_token = os.getenv("GITHUB_TOKEN")
+        self.repo = "flutter/flutter"
+        self.base_url = f"https://api.github.com/repos/{self.repo}"
+        self.headers = {"Authorization": f"Bearer {self.github_token}"}
 
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-REPO = "flutter/flutter"
-BASE_URL = f"https://api.github.com/repos/{REPO}"
-HEADERS = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
+    def get_issues(self, per_page=5):
+        url = f"{self.base_url}/issues"
+        params = {"per_page": per_page}
+        response = requests.get(url, headers=self.headers, params=params)
+        return response.json()
 
-def get_repo_info():
-    response = requests.get(BASE_URL, headers=HEADERS)
-    return response.json()
+    def get_issue_comments(self, issue_number):
+        url = f"{self.base_url}/issues/{issue_number}/comments"
+        response = requests.get(url, headers=self.headers)
+        return response.json()
 
-def get_issues(state="open", per_page=5):
-    url = f"{BASE_URL}/issues"
-    params = {"state": state, "per_page": per_page}
-    response = requests.get(url, headers=HEADERS, params=params)
-    return response.json()
+    def get_issue_str(self, issue):
+        comments = self.get_issue_comments(issue['number'])
+        comments_str = "None"
+        for comment in comments:
+            comments_str += f"- [{comment['created_at']}] {comment['user']['login']}: {comment['body']}\n"
 
-def get_pull_requests(state="open", per_page=5):
-    url = f"{BASE_URL}/pulls"
-    params = {"state": state, "per_page": per_page}
-    response = requests.get(url, headers=HEADERS, params=params)
-    return response.json()
+        return f"""
+User {issue['user']['login']} created issue #{issue['number']} titled {issue['title']} on {issue['created_at']}.
+The issue is currently {issue['state']}.
 
-repo_info = get_repo_info()
-print("Repo:", repo_info["full_name"])
-print("Stars:", repo_info["stargazers_count"])
-print("Forks:", repo_info["forks_count"])
+Issue description:
+{issue['body']}
 
-issues = get_issues()
-print("\nSample Issues:")
-for issue in issues:
-    print(f"- #{issue['number']} | {issue['title']} | name: {issue['user']['login']}")
+Issue comments:
+{comments_str}
+        """
 
-prs = get_pull_requests()
-print("\nSample Pull Requests:")
-for pr in prs:
-    print(f"- #{pr['number']} | {pr['title']} | name: {pr['user']['login']}")
+    def get_pull_requests(self, per_page=5):
+        url = f"{self.base_url}/pulls"
+        params = {"per_page": per_page}
+        response = requests.get(url, headers=self.headers, params=params)
+        return response.json()
