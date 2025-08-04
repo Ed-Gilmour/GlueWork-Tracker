@@ -10,7 +10,7 @@ def main():
     else:
         scraper = GitHubScraper()
         texts = []
-        issues = scraper.get_issues(per_page=5)
+        issues = scraper.get_issues(per_page=10)
 
         for issue in issues:
             texts.append(scraper.get_issue_str(issue))

@@ -26,7 +26,7 @@ class GitHubScraper:
         comments_str = ""
         for comment in comments:
             comments_str += f"""
-- {comment['user']['login']} commented on {comment['created_at']}.
+{comment['user']['login']} commented on {comment['created_at']}.
 Comment description:
 {comment['body']}
 
