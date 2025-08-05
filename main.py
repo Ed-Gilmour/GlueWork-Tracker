@@ -1,5 +1,6 @@
 from github_scraper import GitHubScraper
 from sentence_bert_vectorizer import VectorIndexer
+from classifier_agents import ClassifierAgent
 import os
 
 def main():
@@ -23,4 +24,6 @@ def main():
     for match, score in results:
         print(f"Match: {match} (Distance: {score:.4f})")
 
-main()
+# main()
+classifier_agent = ClassifierAgent()
+print(classifier_agent.classify_data("What is 5 + 5?"))
