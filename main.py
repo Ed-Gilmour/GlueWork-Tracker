@@ -1,29 +1,32 @@
 from github_scraper import GitHubScraper
-from sentence_bert_vectorizer import VectorIndexer
 from classifier_agents import ClassifierAgent
-import os
 
 def main():
-    indexer = VectorIndexer()
+    github_scraper = GitHubScraper()
+    classifier_agent = ClassifierAgent()
+    issues = github_scraper.get_issues(per_page=3)
+    for issue in issues:
+        print("\n-------------------ISSUE CLASSIFICATION-------------------\n")
+        issue_str = github_scraper.get_issue_str(issue)
+        if issue_str == "":
+            print("Bot, continuing...")
+            continue
+        response = classifier_agent.classify_data(issue_str)
+        print("\n" + issue_str + "\n")
+        print("\n-------------------CLASSIFICATION-------------------\n")
+        print(response)
+        print("\n-------------------ISSUE CLASSIFICATION END-------------------\n")
+    pull_requests = github_scraper.get_pull_requests(per_page=3)
+    for pull_request in pull_requests:
+        print("\n-------------------PULL REQUEST CLASSIFICATION-------------------\n")
+        pull_request_str = github_scraper.get_pull_request_str(pull_request)
+        if pull_request_str == "":
+            print("Bot, continuing...")
+            continue
+        response = classifier_agent.classify_data(pull_request_str)
+        print("\n" + pull_request_str + "\n")
+        print("\n-------------------CLASSIFICATION-------------------")
+        print(response)
+        print("\n-------------------PULL REQUEST CLASSIFICATION END-------------------\n")
 
-    if os.path.exists("test_index.faiss"):
-        indexer.load_index("test_database")
-    else:
-        scraper = GitHubScraper()
-        texts = []
-        issues = scraper.get_issues(per_page=10)
-
-        for issue in issues:
-            texts.append(scraper.get_issue_str(issue))
-
-        embeddings = indexer.encode_texts(texts)
-        indexer.build_index(embeddings)
-        indexer.save_index("test_database")
-
-    results = indexer.search("Is there an issue from August 4th?", k=5)
-    for match, score in results:
-        print(f"Match: {match} (Distance: {score:.4f})")
-
-# main()
-classifier_agent = ClassifierAgent()
-print(classifier_agent.classify_data("What is 5 + 5?"))
+main()
