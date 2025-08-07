@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout this repo
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -35,7 +35,7 @@ jobs:
 
       - name: Authenticate Git
         run: |
-            git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
             git config user.name "glue-work-tracker-bot"
             git config user.email "github-actions[bot]@users.noreply.github.com"
 
