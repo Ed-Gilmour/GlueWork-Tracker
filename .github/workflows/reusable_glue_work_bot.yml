@@ -1,0 +1,16 @@
+name: Reusable Glue Work Tracker Bot
+
+on:
+  workflow_call:
+    inputs:
+      urls_file:
+        required: true
+        type: string
+
+jobs:
+  run-tracker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: python glue_work_bot/main.py --urls-file "${{ inputs.urls_file }}"
