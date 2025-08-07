@@ -30,14 +30,18 @@ jobs:
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
 
-      - name: Run bot
+      - name: Run Glue Work Bot
         run: python glue_work_bot/main.py
+
+      - name: Authenticate Git
+        run: git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
       - name: Create pull request with results
         run: |
-          git config user.name "glue-work-tracker-bot"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -B glue-work-contributor-results
-          git add glue_work_bot_data/glue_work_report.md glue_work_bot_data/contributor_list.md
-          git commit -m "Update glue work contributor results" || echo "No changes to commit"
-          git push --force origin glue-work-contributor-results
+            git config user.name "glue-work-tracker-bot"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout -B glue-work-contributor-results
+            git add glue_work_bot_data/glue_work_report.md glue_work_bot_data/contributor_list.md
+            git commit -m "Update glue work contributor results" || echo "No changes to commit"
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+            git push --force origin glue-work-contributor-results
