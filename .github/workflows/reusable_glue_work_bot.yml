@@ -3,7 +3,7 @@ name: Reusable Glue Work Tracker Bot
 on:
   workflow_call:
     inputs:
-      urls_file:
+      config_file:
         required: true
         type: string
 
@@ -13,4 +13,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: python glue_work_bot/main.py --urls-file "${{ inputs.urls_file }}"
+      - run: python glue_work_bot/main.py --urls-file "${{ inputs.config_file }}"
