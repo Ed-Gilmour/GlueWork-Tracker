@@ -1,0 +1,12 @@
+name: Run Glue Work Tracker Bot
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+
+jobs:
+  run-glue-work-tracker:
+    uses: Ed-Gilmour/GlueWork-Tracker/.github/workflows/glue_work_bot.yml@main
+    with:
+      config_file: 'glue_work_bot/glue_work_bot_config.yml'
