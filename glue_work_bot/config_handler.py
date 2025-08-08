@@ -17,7 +17,7 @@ class ConfigHandler:
                     self.load_exception = "Missing required fields in config.\nRequired fields:"
                     for field in self.required_fields:
                         self.load_exception += "\n" + field
-                return missing
+                return not missing
         except Exception as e:
             self.load_exception = e
             return False
