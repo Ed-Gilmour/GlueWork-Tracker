@@ -11,11 +11,17 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout caller repo
+        uses: actions/checkout@v4
+        with:
+          path: caller_repo
+
+      - name: Checkout GlueWork-Tracker repo
         uses: actions/checkout@v4
         with:
           repository: Ed-Gilmour/GlueWork-Tracker
           ref: main
+          path: gluework_repo
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,28 +31,31 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
-            path: ~/.cache/pip
-            key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-            restore-keys: |
-                ${{ runner.os }}-pip-
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('gluework_repo/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r gluework_repo/requirements.txt
 
       - name: Run Glue Work Bot
-        run: python glue_work_bot/main.py --config-file "${{ inputs.config_file }}"
+        working-directory: gluework_repo
+        run: python glue_work_bot/main.py --config-file "../caller_repo/${{ inputs.config_file }}"
 
-      - name: Configure Bot
+      - name: Configure Git
+        working-directory: caller_repo
         run: |
-            git config user.name "Glue Work Tracker Bot"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Glue Work Tracker Bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Create pull request with results
         uses: peter-evans/create-pull-request@v6
         with:
+          path: caller_repo
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: Update glue work contributor results
           title: Update glue work contributor results
