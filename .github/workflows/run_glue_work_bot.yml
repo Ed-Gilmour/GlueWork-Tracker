@@ -1,15 +1,21 @@
 name: Glue Work Tracker Bot
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      config_file:
+        required: true
+        type: string
 
 jobs:
   run:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          repository: Ed-Gilmour/GlueWork-Tracker
+          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,7 +37,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run Glue Work Bot
-        run: python glue_work_bot/main.py
+        run: python glue_work_bot/main.py --config-file "${{ inputs.config_file }}"
 
       - name: Configure Bot
         run: |
