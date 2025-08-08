@@ -7,8 +7,6 @@ class OutputHandler():
 
     def save_output(self):
         config_loaded = self.config_handler.load_config()
-        load_exception = self.config_handler.get_load_exception()
-        urls = self.config_handler.get_urls()
 
         contributor_list_path = os.path.join(self.output_dir, "contributor_list_.md")
         glue_work_report_path = os.path.join(self.output_dir, "glue_work_report.md")
@@ -20,11 +18,11 @@ class OutputHandler():
             if config_loaded:
                 f.write("Test Glue Work Contributor List.")
             else:
-                f.write(f"Error loading config:\n{load_exception}")
+                f.write(f"Error loading config:\n{self.config_handler.get_load_exception()}")
         with open(glue_work_report_path, "w") as f:
             if config_loaded:
                 f.write("Test Glue Work Report. Here are the URLs configured.")
-                for url in urls:
+                for url in self.config_handler.get_urls():
                     f.write("\n" + url)
             else:
-                f.write(f"Error loading config:\n{load_exception}")
+                f.write(f"Error loading config:\n{self.config_handler.get_load_exception()}")

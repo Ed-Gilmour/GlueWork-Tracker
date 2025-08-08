@@ -41,7 +41,6 @@ def test():
     args = parser.parse_args()
     config_file = args.config_file
     output_dir = args.output_dir
-
     config_handler = ConfigHandler(config_file)
     output_handler = OutputHandler(output_dir, config_handler)
     output_handler.save_output()
