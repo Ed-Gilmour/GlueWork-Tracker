@@ -6,4 +6,4 @@ It will run once a month (configurable) or when you run it manually.
 ## Instructions ##
 1. In the glue_work_bot_setup folder add the run_glue_work_bot.yml to github workflows.
 2. In the glue_work_bot_setup folder add the glue_work_bot folder to your root directory.
-3. Read the README.md inside the glue_work_bot folder for how to configure and run the Glue Work Tracker Bot.
+3. Read the README.md in glue_work_bot_setup/glue_work_bot for how to configure and run the Glue Work Tracker Bot.
