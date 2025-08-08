@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import os
 
 class OutputHandler():
@@ -18,11 +19,13 @@ class OutputHandler():
             if config_loaded:
                 f.write("Test Glue Work Contributor List.")
             else:
-                f.write(f"Error loading config:\n{self.config_handler.get_load_exception()}")
+                current_utc_datetime = datetime.now(timezone.utc)
+                f.write(f"[{current_utc_datetime}] Error loading config:\n{self.config_handler.get_load_exception()}")
         with open(glue_work_report_path, "w") as f:
             if config_loaded:
                 f.write("Test Glue Work Report. Here are the URLs configured.")
                 for url in self.config_handler.get_urls():
                     f.write("\n" + url)
             else:
-                f.write(f"Error loading config:\n{self.config_handler.get_load_exception()}")
+                current_utc_datetime = datetime.now(timezone.utc)
+                f.write(f"[{current_utc_datetime}] Error loading config:\n{self.config_handler.get_load_exception()}")
