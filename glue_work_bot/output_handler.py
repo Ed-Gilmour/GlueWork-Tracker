@@ -16,16 +16,16 @@ class OutputHandler():
         os.makedirs(os.path.dirname(glue_work_report_path), exist_ok=True)
 
         with open(contributor_list_path, "w") as f:
+            current_utc_datetime = datetime.now(timezone.utc)
             if config_loaded:
-                f.write("Test Glue Work Contributor List.")
+                f.write(f"[{current_utc_datetime}]\nTest Glue Work Contributor List.")
             else:
-                current_utc_datetime = datetime.now(timezone.utc)
-                f.write(f"[{current_utc_datetime}] Error loading config:\n{self.config_handler.get_load_exception()}")
+                f.write(f"[{current_utc_datetime}]\nError loading config:\n{self.config_handler.get_load_exception()}")
         with open(glue_work_report_path, "w") as f:
+            current_utc_datetime = datetime.now(timezone.utc)
             if config_loaded:
-                f.write("Test Glue Work Report. Here are the URLs configured.")
+                f.write(f"[{current_utc_datetime}]\nTest Glue Work Report. Here are the URLs configured.")
                 for url in self.config_handler.get_urls():
                     f.write("\n" + url)
             else:
-                current_utc_datetime = datetime.now(timezone.utc)
-                f.write(f"[{current_utc_datetime}] Error loading config:\n{self.config_handler.get_load_exception()}")
+                f.write(f"[{current_utc_datetime}]\nError loading config:\n{self.config_handler.get_load_exception()}")
