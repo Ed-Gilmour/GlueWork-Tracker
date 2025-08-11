@@ -3,8 +3,6 @@ from classifier_agents import ClassifierAgent
 from config_handler import ConfigHandler
 from output_handler import OutputHandler
 import argparse
-import os
-import yaml
 
 def main():
     github_scraper = GitHubScraper()
