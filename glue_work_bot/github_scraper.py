@@ -11,121 +11,88 @@ class GitHubScraper:
         self.base_url = f"https://api.github.com/repos/{self.repo}"
         self.headers = {"Authorization": f"Bearer {self.github_token}"}
 
-    def get_issues_updated_since(self, days=365, per_page=100):
+    def github_paginate(self, url, params=None):
+        results = []
+        session = requests.Session()
+
+        page = 1
+        while True:
+            query = params.copy() if params else {}
+            query["per_page"] = 100
+            query["page"] = page
+
+            response = session.get(url, params=query, headers=self.headers)
+            response.raise_for_status()
+
+            data = response.json()
+            if not data:
+                break
+
+            results.extend(data)
+            page += 1
+
+        return results
+
+
+    def get_requests_updated_since(self, type, days=365, per_page=100, branch=None):
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        since_iso = cutoff.replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        since_iso = cutoff.replace().isoformat().replace("+00:00", "Z")
 
         params = {
             "per_page": per_page,
             "since": since_iso,
             "state": "all",
             "direction": "desc",
-            "sort": "updated"
+            "sort": "updated",
+            "sha": branch
         }
 
-        all_issues = []
-        url = self.base_url + "/issues"
+        url = self.base_url + "/" + type
 
-        while url:
-            response = requests.get(url, headers=self.headers, params=params)
+        return self.github_paginate(url=url, params=params)
+
+    def get_all_branches(self):
+        url = f"{self.base_url}/branches"
+        return self.github_paginate(url)
+
+    def get_all_commits(self):
+        branches = self.get_all_branches()
+        commits = []
+        used_shas = []
+        for branch in branches:
+            branch_commits = self.get_requests_updated_since(type="commits", days=days, branch=branch["name"])
+            for commit in branch_commits:
+                if commit["sha"] in used_shas:
+                    continue
+                else:
+                    used_shas.append(commit["sha"])
+                    commits.append(commit)
+        return commits
+
+    def get_all_pull_request_urls(self, issues):
+        urls = []
+        for issue in issues:
+            if "pull_request" in issue:
+                urls.append(issue["pull_request"]["url"])
+        return urls
+
+    def get_all_pull_requests(self, urls):
+        pull_requests = []
+        for url in urls:
+            session = requests.Session()
+            response = session.get(url, headers=self.headers)
             response.raise_for_status()
-            issues = response.json()
-            all_issues.extend(issues)
-
-            params = {}
-
-            link = response.headers.get("Link", "")
-            url = None
-            if link:
-                parts = link.split(",")
-                for part in parts:
-                    if 'rel="next"' in part:
-                        url = part[part.find("<")+1:part.find(">")]
-                        break
-
-        return all_issues
-
-    def get_issue_comments(self, issue_number):
-        url = f"{self.base_url}/issues/{issue_number}/comments"
-        response = requests.get(url, headers=self.headers)
-        return response.json()
-
-    def get_issue_str(self, issue):
-#         if issue['user']['type'] == "Bot":
-#             return ""
-
-#         comments = self.get_issue_comments(issue['number'])
-        comments_str = ""
-#         for comment in comments:
-#             if comment['user']['type'] == "Bot":
-#                 continue
-
-#             comments_str += f"""
-# {comment['user']['login']} commented on {comment['created_at']}.
-# Comment description:
-# {comment['body']}
-
-# """
-#         if(len(comments) == 0):
-#             comments_str = "None"
-
-        message_str = f"""
-User {issue['user']['login']} created issue #{issue['number']} titled {issue['title']} on {issue['created_at']}.
-The issue is currently {issue['state']}.
-
-Issue description:
-{issue['body']}
-"""
-
-#         message_str += f"""
-# Issue comments:
-# {comments_str}
-# """
-
-        return message_str
-
-    def get_pull_requests(self, per_page=5):
-        url = f"{self.base_url}/pulls"
-        params = {"per_page": per_page}
-        response = requests.get(url, headers=self.headers, params=params)
-        return response.json()
-
-    def get_pull_request_comments(self, pull_request_number):
-        url = f"{self.base_url}/pulls/{pull_request_number}/comments"
-        response = requests.get(url, headers=self.headers)
-        return response.json()
-
-    def get_pull_request_str(self, pull_request):
-        if pull_request['user']['type'] == "Bot":
-            return ""
-
-        comments = self.get_pull_request_comments(pull_request['number'])
-        comments_str = ""
-        for comment in comments:
-            if comment['user']['type'] == "Bot":
-                continue
-
-            comments_str += f"""
-{comment['user']['login']} commented on {comment['created_at']}.
-Comment description:
-{comment['body']}
-
-"""
-        if(len(comments) == 0):
-            comments_str = "None"
-
-        return f"""
-User {pull_request['user']['login']} created pull request #{pull_request['number']} titled {pull_request['title']} on {pull_request['created_at']}.
-The pull request is currently {pull_request['state']}.
-
-Pull request description:
-{pull_request['body']}
-
-Pull request comments:
-{comments_str}
-"""
+            data = response.json()
+            pull_requests.append(data)
+        return pull_requests
 
 if __name__ == "__main__":
     github_scraper = GitHubScraper()
-    issues = github_scraper.get_issues_updated_since()
-    print(f"Fetched {len(issues)} issues updated in the past year.")
+    days = 2
+    issues = github_scraper.get_requests_updated_since(type="issues", days=days)
+    pull_requests_urls = github_scraper.get_all_pull_request_urls(issues=issues)
+    pull_requests = github_scraper.get_all_pull_requests(pull_requests_urls)
+    commits = github_scraper.get_all_commits()
+    print(f"Fetched {len(issues)} issues updated in the past {days} days.")
+    print(f"Fetched {len(pull_requests)} pull requests updated in the past {days} days.")
+    print(f"Fetched {len(commits)} unique commits updated in the past {days} days.")
