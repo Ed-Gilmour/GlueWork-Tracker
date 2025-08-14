@@ -126,4 +126,4 @@ class GitHubScraper:
 
 if __name__ == "__main__":
     github_scraper = GitHubScraper()
-    github_scraper.scrape_github_data(7)
+    github_scraper.scrape_github_data(1)
