@@ -93,7 +93,7 @@ class GitHubScraper:
             pull_requests.append(data)
         return pull_requests
 
-    def write_glue_work_data(data):
+    def write_glue_work_data(self, data):
         os.makedirs("temp", exist_ok=True)
         with open("temp/glue_work_data.json", "w") as f:
             json.dump(data, f)
@@ -103,7 +103,7 @@ class GitHubScraper:
         pull_requests_urls = self.get_all_pull_request_urls(issues=issues)
         pull_requests = self.get_all_pull_requests(urls=pull_requests_urls)
         commits = self.get_all_commits(days=days)
-        self.write_glue_work_data({
+        self.write_glue_work_data(data={
             "issues": f"Fetched {len(issues)} issues updated in the past {days} days.",
             "pull_requests": f"Fetched {len(pull_requests)} pull requests updated in the past {days} days.",
             "commits": f"Fetched {len(commits)} unique commits updated in the past {days} days."
