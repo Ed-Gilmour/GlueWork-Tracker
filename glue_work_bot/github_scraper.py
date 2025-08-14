@@ -40,10 +40,9 @@ class GitHubScraper:
 
         return results
 
-
-    def get_requests_updated_since(self, type, days=365, per_page=100, branch=None):
+    def get_requests_updated_since(self, item_type, days=365, per_page=100, branch=None):
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        since_iso = cutoff.replace().isoformat().replace("+00:00", "Z")
+        since_iso = cutoff.isoformat().replace("+00:00", "Z")
 
         params = {
             "per_page": per_page,
@@ -54,7 +53,7 @@ class GitHubScraper:
             "sha": branch
         }
 
-        url = self.base_url + "/" + type
+        url = self.base_url + "/" + item_type
 
         return self.github_paginate(url=url, params=params)
 
@@ -65,14 +64,14 @@ class GitHubScraper:
     def get_all_commits(self, days):
         branches = self.get_all_branches()
         commits = []
-        used_shas = []
+        used_shas = set()
         for branch in branches:
-            branch_commits = self.get_requests_updated_since(type="commits", days=days, branch=branch["name"])
+            branch_commits = self.get_requests_updated_since(item_type="commits", days=days, branch=branch["name"])
             for commit in branch_commits:
                 if commit["sha"] in used_shas:
                     continue
                 else:
-                    used_shas.append(commit["sha"])
+                    used_shas.add(commit["sha"])
                     commits.append(commit)
         return commits
 
@@ -85,8 +84,8 @@ class GitHubScraper:
 
     def get_all_pull_requests(self, urls):
         pull_requests = []
+        session = requests.Session()
         for url in urls:
-            session = requests.Session()
             response = session.get(url, headers=self.headers)
             response.raise_for_status()
             data = response.json()
@@ -99,7 +98,7 @@ class GitHubScraper:
             json.dump(data, f)
 
     def scrape_github_data(self, days):
-        issues = self.get_requests_updated_since(type="issues", days=days)
+        issues = self.get_requests_updated_since(item_type="issues", days=days)
         pull_requests_urls = self.get_all_pull_request_urls(issues=issues)
         pull_requests = self.get_all_pull_requests(urls=pull_requests_urls)
         commits = self.get_all_commits(days=days)
