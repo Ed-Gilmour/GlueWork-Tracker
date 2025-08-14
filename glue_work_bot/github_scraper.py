@@ -8,9 +8,15 @@ class GitHubScraper:
     def __init__(self):
         load_dotenv()
         self.github_token = os.getenv("GITHUB_TOKEN")
+        if not self.github_token:
+            raise ValueError("GITHUB_TOKEN is not set!")
+
         self.repo = "flutter/flutter"
         self.base_url = f"https://api.github.com/repos/{self.repo}"
-        self.headers = {"Authorization": f"Bearer {self.github_token}"}
+        self.headers = {
+            "Authorization": f"Bearer {self.github_token}",
+            "Accept": "application/vnd.github.v3+json"
+        }
 
     def github_paginate(self, url, params=None):
         results = []
