@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 import os
+import json
 
 class OutputHandler():
     def __init__(self, output_dir, config_handler):
@@ -15,10 +16,14 @@ class OutputHandler():
         os.makedirs(os.path.dirname(contributor_list_path), exist_ok=True)
         os.makedirs(os.path.dirname(glue_work_report_path), exist_ok=True)
 
+        with open("temp/glue_work_data.json") as f:
+            data = json.load(f)
+
         current_utc_datetime = datetime.now(timezone.utc)
         with open(contributor_list_path, "w") as f:
             if config_loaded:
-                f.write(f"[{current_utc_datetime}]\nTest Glue Work Contributor List.")
+                # f.write(f"[{current_utc_datetime}]\nTest Glue Work Contributor List.")
+                f.write(data)
             else:
                 f.write(f"[{current_utc_datetime}]\nError loading config:\n{self.config_handler.get_load_exception()}")
         with open(glue_work_report_path, "w") as f:
