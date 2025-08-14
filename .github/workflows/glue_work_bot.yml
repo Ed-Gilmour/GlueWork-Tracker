@@ -43,6 +43,7 @@ jobs:
         run: pip install -r gluework_repo/requirements.txt
 
       - name: Scrape Glue Work Data
+        working-directory: gluework_repo
         run: python glue_work_bot/github_scraper.py
 
       - name: Run Glue Work Bot

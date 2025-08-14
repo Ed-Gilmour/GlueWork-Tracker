@@ -56,7 +56,7 @@ class GitHubScraper:
         url = f"{self.base_url}/branches"
         return self.github_paginate(url)
 
-    def get_all_commits(self):
+    def get_all_commits(self, days):
         branches = self.get_all_branches()
         commits = []
         used_shas = []
@@ -92,15 +92,17 @@ class GitHubScraper:
         with open("temp/glue_work_data.json", "w") as f:
             json.dump(data, f)
 
+    def scrape_github_data(self, days):
+        issues = self.get_requests_updated_since(type="issues", days=days)
+        pull_requests_urls = self.get_all_pull_request_urls(issues=issues)
+        pull_requests = self.get_all_pull_requests(urls=pull_requests_urls)
+        commits = self.get_all_commits(days=days)
+        self.write_glue_work_data({
+            "issues": f"Fetched {len(issues)} issues updated in the past {days} days.",
+            "pull_requests": f"Fetched {len(pull_requests)} pull requests updated in the past {days} days.",
+            "commits": f"Fetched {len(commits)} unique commits updated in the past {days} days."
+        })
+
 if __name__ == "__main__":
     github_scraper = GitHubScraper()
-    days = 7
-    issues = github_scraper.get_requests_updated_since(type="issues", days=days)
-    pull_requests_urls = github_scraper.get_all_pull_request_urls(issues=issues)
-    pull_requests = github_scraper.get_all_pull_requests(pull_requests_urls)
-    commits = github_scraper.get_all_commits()
-    github_scraper.write_glue_work_data({
-        "issues": f"Fetched {len(issues)} issues updated in the past {days} days.",
-        "pull_requests": f"Fetched {len(pull_requests)} pull requests updated in the past {days} days.",
-        "commits": f"Fetched {len(commits)} unique commits updated in the past {days} days."
-    })
+    github_scraper.scrape_github_data(7)
