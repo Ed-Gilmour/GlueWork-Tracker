@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 import os
 import requests
+import json
 
 class GitHubScraper:
     def __init__(self):
@@ -86,13 +87,20 @@ class GitHubScraper:
             pull_requests.append(data)
         return pull_requests
 
+    def write_glue_work_data(data):
+        os.makedirs("temp", exist_ok=True)
+        with open("temp/glue_work_data.json", "w") as f:
+            json.dump(data, f)
+
 if __name__ == "__main__":
     github_scraper = GitHubScraper()
-    days = 2
+    days = 7
     issues = github_scraper.get_requests_updated_since(type="issues", days=days)
     pull_requests_urls = github_scraper.get_all_pull_request_urls(issues=issues)
     pull_requests = github_scraper.get_all_pull_requests(pull_requests_urls)
     commits = github_scraper.get_all_commits()
-    print(f"Fetched {len(issues)} issues updated in the past {days} days.")
-    print(f"Fetched {len(pull_requests)} pull requests updated in the past {days} days.")
-    print(f"Fetched {len(commits)} unique commits updated in the past {days} days.")
+    github_scraper.write_glue_work_data({
+        "issues": f"Fetched {len(issues)} issues updated in the past {days} days.",
+        "pull_requests": f"Fetched {len(pull_requests)} pull requests updated in the past {days} days.",
+        "commits": f"Fetched {len(commits)} unique commits updated in the past {days} days."
+    })

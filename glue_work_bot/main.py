@@ -1,6 +1,7 @@
 from config_handler import ConfigHandler
 from output_handler import OutputHandler
 import argparse
+import json
 
 def run_bot():
     parser = argparse.ArgumentParser()
@@ -14,4 +15,7 @@ def run_bot():
     output_handler.save_output()
 
 if __name__ == "__main__":
+    with open("temp/glue_work_data.json") as f:
+        data = json.load(f)
+    print("Loaded data:", data)
     run_bot()
