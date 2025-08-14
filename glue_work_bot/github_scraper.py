@@ -107,12 +107,14 @@ class GitHubScraper:
                 {
                     "title": issue["title"],
                     "body": issue.get("body", ""),
+                    "author": issue["user"]["login"]
                 } for issue in issues
             ],
             "pull_requests": [
                 {
                     "title": pr["title"],
-                    "body": pr.get("body", "")
+                    "body": pr.get("body", ""),
+                    "author": pr["user"]["login"]
                 } for pr in pull_requests
             ],
             "commits": [
