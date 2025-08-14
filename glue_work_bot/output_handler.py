@@ -17,7 +17,7 @@ class OutputHandler():
         os.makedirs(os.path.dirname(glue_work_report_path), exist_ok=True)
 
         with open("temp/glue_work_data.json") as f:
-            data = json.dumps(json.load(f))
+            data = json.dumps(json.load(f), indent=4)
 
         current_utc_datetime = datetime.now(timezone.utc)
         with open(contributor_list_path, "w") as f:
