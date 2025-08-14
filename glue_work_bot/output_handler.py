@@ -22,8 +22,7 @@ class OutputHandler():
         current_utc_datetime = datetime.now(timezone.utc)
         with open(contributor_list_path, "w") as f:
             if config_loaded:
-                # f.write(f"[{current_utc_datetime}]\nTest Glue Work Contributor List.")
-                f.write(data)
+                f.write(f"[{current_utc_datetime}]\nTest Glue Work Contributor List.")
             else:
                 f.write(f"[{current_utc_datetime}]\nError loading config:\n{self.config_handler.get_load_exception()}")
         with open(glue_work_report_path, "w") as f:
