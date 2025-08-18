@@ -30,13 +30,15 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Cache dependencies
+      - name: Cache dependencies and Deepseek
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('gluework_repo/requirements.txt') }}
+          path: |
+            ~/.cache/pip
+            ~/.ollama/models
+          key: ${{ runner.os }}-deps-${{ hashFiles('gluework_repo/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-deps-
 
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
