@@ -6,9 +6,11 @@ class CodeAgent:
         self.model = OllamaLLM(model="deepseek-r1:7b", base_url="http://localhost:11434")
 
     def classify_data(self, prompt):
+        print("Start data classification")
         return strip_think_tags(self.model.invoke(prompt))
 
     def get_issue_prompt(self, issue):
+        print("Get prompt for: " + issue["title"])
         return f"""
 You are given a GitHub issue.
 You specialize in classifying whether this issue is maintenance or quality assurance.
