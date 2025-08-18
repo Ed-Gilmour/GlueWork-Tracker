@@ -3,7 +3,7 @@ import re
 
 class CodeAgent:
     def __init__(self):
-        self.model = OllamaLLM(model="deepseek-r1:7b")
+        self.model = OllamaLLM(model="deepseek-r1:7b", base_url="http://localhost:11434")
 
     def classify_data(self, prompt):
         return strip_think_tags(self.model.invoke(prompt))
