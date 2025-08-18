@@ -1,8 +1,10 @@
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
+from config_handler import ConfigHandler
 import os
 import requests
 import json
+import argparse
 
 class GitHubScraper:
     def __init__(self):
@@ -126,6 +128,15 @@ class GitHubScraper:
         }
         self.write_glue_work_data(data=data)
 
+class ConfigScraper:
+    def __init__(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--config-file', required=True)
+        args = parser.parse_args()
+        config_file = args.config_file
+        self.config_handler = ConfigHandler(config_file)
+
 if __name__ == "__main__":
     github_scraper = GitHubScraper()
-    github_scraper.scrape_github_data(30)
+    config_scraper = ConfigScraper()
+    github_scraper.scrape_github_data(1)
