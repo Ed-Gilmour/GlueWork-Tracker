@@ -46,11 +46,11 @@ jobs:
 
       - name: Scrape Glue Work Data
         working-directory: gluework_repo
-        run: python glue_work_bot/data_scraper.py
+        run: python glue_work_bot/data_scraper.py --config-file "../caller_repo/glue_work_bot/glue_work_bot_config.yml"
 
       - name: Run Glue Work Bot
         working-directory: gluework_repo
-        run: python glue_work_bot/main.py --config-file "../caller_repo/glue_work_bot/glue_work_bot_config.yml" --output-dir "../caller_repo/glue_work_bot/glue_work_bot_results"
+        run: python glue_work_bot/main.py --output-dir "../caller_repo/glue_work_bot/glue_work_bot_results"
 
       - name: Configure Git
         working-directory: caller_repo
