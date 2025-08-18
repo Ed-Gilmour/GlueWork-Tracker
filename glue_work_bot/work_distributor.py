@@ -6,6 +6,7 @@ class WorkDistributor:
         self.data = data
 
     def distribute_work(self):
+        print("Distribute work")
         code_agent = CodeAgent()
         for i in range(len(self.data["issues"])):
             issue = self.data["issues"][i]

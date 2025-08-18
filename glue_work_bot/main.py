@@ -11,6 +11,7 @@ def run_bot():
     output_handler = OutputHandler(output_dir)
     with open("temp/glue_work_data.json") as f:
         data = json.load(f)
+    print("Loaded data and started work distribution")
     work_distributor = WorkDistributor(data, output_handler)
     work_distributor.distribute_work()
     output_handler.save_output()

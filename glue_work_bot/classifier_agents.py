@@ -3,7 +3,9 @@ import re
 
 class CodeAgent:
     def __init__(self):
+        print("Start model initialization")
         self.model = OllamaLLM(model="deepseek-r1:7b", base_url="http://localhost:11434")
+        print("Model initialization complete")
 
     def classify_data(self, prompt):
         print("Start data classification")
