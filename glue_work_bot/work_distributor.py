@@ -7,6 +7,8 @@ class WorkDistributor:
 
     def distribute_work(self):
         code_agent = CodeAgent()
-        for issue in self.data["issues"]:
+        for i in range(len(self.data["issues"])):
+            issue = self.data["issues"][i]
             self.output.add_contributor(issue["author"])
-            self.output.add_classification(code_agent.classify_data(code_agent.get_issue_prompt(issue)))
+            if i < 3:
+                self.output.add_classification(code_agent.classify_data(code_agent.get_issue_prompt(issue)))
