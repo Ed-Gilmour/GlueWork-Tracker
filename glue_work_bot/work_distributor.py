@@ -11,5 +11,5 @@ class WorkDistributor:
         for i in range(len(self.data["issues"])):
             issue = self.data["issues"][i]
             self.output.add_contributor(issue["author"])
-            if i < 3:
+            if i < 2:
                 self.output.add_classification(code_agent.classify_data(code_agent.get_issue_prompt(issue)))
