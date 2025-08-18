@@ -17,4 +17,6 @@ def run_bot():
     output_handler.save_output()
 
 if __name__ == "__main__":
+    print("[Flush] Starting Glue Work Bot", flush=True)
+    print("Starting Glue Work Bot")
     run_bot()
