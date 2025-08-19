@@ -22,3 +22,6 @@ class WorkDistributor:
             self.output.add_contributor(commit["author"])
             if i < 3:
                 self.output.add_classification(code_agent.classify_data(code_agent.get_commit_prompt(commit)))
+        for i in range(len(self.data["reviews"])):
+            review = self.data["reviews"][i]
+            self.output.add_contributor(review["author"])

@@ -94,6 +94,19 @@ class GitHubScraper:
             pull_requests.append(data)
         return pull_requests
 
+    def get_all_reviews(self, pull_requests):
+        reviews = []
+        session = requests.Session()
+        for pr in pull_requests:
+            url = pr["url"] + "/reviews"
+            response = session.get(url, headers=self.headers)
+            response.raise_for_status()
+            data = response.json()
+            for review in data:
+                if review["user"]["type"] != "Bot":
+                    reviews.append(review)
+        return reviews
+
     def write_glue_work_data(self, data):
         os.makedirs("temp", exist_ok=True)
         with open("temp/glue_work_data.json", "w") as f:
@@ -104,6 +117,7 @@ class GitHubScraper:
         pull_requests_urls = self.get_all_pull_request_urls(issues=issues)
         pull_requests = self.get_all_pull_requests(urls=pull_requests_urls)
         commits = self.get_all_commits(days=days)
+        reviews = self.get_all_reviews(pull_requests=pull_requests)
         data = {
             "issues": [
                 {
@@ -124,6 +138,11 @@ class GitHubScraper:
                     "message": commit["commit"]["message"],
                     "author": commit["commit"]["author"]["name"]
                 } for commit in commits
+            ],
+            "reviews": [
+                {
+                    "author": review["user"]["login"]
+                } for review in reviews
             ]
         }
         self.write_glue_work_data(data=data)
