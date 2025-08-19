@@ -115,8 +115,8 @@ class GitHubScraper:
         issues = self.get_requests_updated_since(item_type="issues", days=days)
         pull_requests_urls = self.get_all_pull_request_urls(issues=issues)
         pull_requests = self.get_all_pull_requests(urls=pull_requests_urls)
+        pull_request_reviews = self.get_all_pull_request_reviews(urls=pull_requests_urls)
         commits = self.get_all_commits(days=days)
-        reviews = self.get_all_reviews(pull_requests=pull_requests)
         data = {
             "issues": [
                 {
@@ -141,7 +141,7 @@ class GitHubScraper:
             "reviews": [
                 {
                     "author": review["user"]["login"]
-                } for review in reviews
+                } for review in pull_request_reviews
             ]
         }
         self.write_glue_work_data(data=data)
