@@ -94,12 +94,11 @@ class GitHubScraper:
             pull_requests.append(data)
         return pull_requests
 
-    def get_all_reviews(self, pull_requests):
+    def get_all_pull_request_reviews(self, urls):
         reviews = []
         session = requests.Session()
-        for pr in pull_requests:
-            url = pr["url"] + "/reviews"
-            response = session.get(url, headers=self.headers)
+        for url in urls:
+            response = session.get(url + "/reviews", headers=self.headers)
             response.raise_for_status()
             data = response.json()
             for review in data:
