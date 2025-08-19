@@ -21,7 +21,7 @@ class OutputHandler():
             contributors_str += f"\n- {contributor}"
         report_str = f"[{current_utc_datetime}]\nGlue Work Report:"
         for classification in self.classifications:
-            report_str += f"\n- {classification}"
+            report_str += f"\n{classification}"
 
         with open(contributor_list_path, "w") as f:
             f.write(contributors_str)

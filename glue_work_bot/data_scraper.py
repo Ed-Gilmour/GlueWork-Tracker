@@ -137,8 +137,6 @@ class ConfigScraper:
         self.config_handler = ConfigHandler(config_file)
 
 if __name__ == "__main__":
-    print("[Flush] Starting data scrape", flush=True)
-    print("Starting data scrape")
     github_scraper = GitHubScraper()
     config_scraper = ConfigScraper()
     github_scraper.scrape_github_data(1)
