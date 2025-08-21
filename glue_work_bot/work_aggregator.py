@@ -28,19 +28,22 @@ class WorkAggregator():
                     total_count += count
         return total_count
 
-    def get_top_contributors(self, glue_work_type, count=10):
+    def get_top_contributors(self, glue_work_type, top_n=10):
         contributors = {}
-        for author in self.authors.keys():
-            for type, count in self.authors[author].items():
-                if type == glue_work_type:
-                    contributors[author] = count
-        if len(contributors) < count:
-            count = len(contributors)
-        cutoff = sorted(contributors.keys(), reverse=True)[-count]
-        for author, count in contributors.items():
-            if count < cutoff:
-                del contributors[author]
-        return contributors
+        for author, types in self.authors.items():
+            if glue_work_type in types:
+                contributors[author] = types[glue_work_type]
+
+        sorted_contributors = sorted(contributors.items(), key=lambda x: x[1], reverse=True)
+
+        if len(sorted_contributors) <= top_n:
+            cutoff = 0
+        else:
+            cutoff = sorted_contributors[top_n - 1][1]
+
+        top_contributors = {author: count for author, count in sorted_contributors if count >= cutoff}
+
+        return top_contributors
 
     def get_glue_work_report(self):
         current_utc_datetime = datetime.now(timezone.utc)
