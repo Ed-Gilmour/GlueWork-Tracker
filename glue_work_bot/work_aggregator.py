@@ -13,7 +13,7 @@ class WorkAggregator():
         else:
             self.authors[author] = { glue_work_type: 1 }
 
-    def get_contributor_list(self): # Add contribution areas?
+    def get_contributor_list(self):
         current_utc_datetime = datetime.now(timezone.utc)
         contributors_str = f"[{current_utc_datetime}]\n# Glue Work Contributor List #"
         for author in self.authors.keys():
@@ -30,9 +30,9 @@ class WorkAggregator():
 
     def get_top_contributors(self, glue_work_type, top_n=10):
         contributors = {}
-        for author, types in self.authors.items():
-            if glue_work_type in types:
-                contributors[author] = types[glue_work_type]
+        for author, glue_work in self.authors.items():
+            if glue_work_type in glue_work:
+                contributors[author] = glue_work[glue_work_type]
 
         sorted_contributors = sorted(contributors.items(), key=lambda x: x[1], reverse=True)
 
