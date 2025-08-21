@@ -1,27 +1,32 @@
-from classifier_agents import CodeAgent
+from classifier_agents import CodeAgent, GlueWorkType
+from work_aggregator import WorkAggregator
 
 class WorkDistributor:
-    def __init__(self, data, output):
-        self.output = output
+    def __init__(self, data):
+        self.aggregator = WorkAggregator()
         self.data = data
 
     def distribute_work(self):
-        code_agent = CodeAgent()
+        code_agent = CodeAgent(self.aggregator)
         for i in range(len(self.data["issues"])):
             issue = self.data["issues"][i]
-            self.output.add_contributor(issue["author"])
+            classification = GlueWorkType.UNKNOWN
             if i < 3:
-                self.output.add_classification(code_agent.classify_data(code_agent.get_issue_prompt(issue)))
+                classification = code_agent.classify_data(code_agent.get_issue_prompt(issue))
+            self.aggregator.add_work(issue["author"], classification)
         for i in range(len(self.data["pull_requests"])):
             pull_request = self.data["pull_requests"][i]
-            self.output.add_contributor(pull_request["author"])
+            classification = GlueWorkType.UNKNOWN
             if i < 3:
-                self.output.add_classification(code_agent.classify_data(code_agent.get_pull_request_prompt(pull_request)))
+                classification = code_agent.classify_data(code_agent.get_pull_request_prompt(pull_request))
+            self.aggregator.add_work(pull_request["author"], classification)
         for i in range(len(self.data["commits"])):
             commit = self.data["commits"][i]
-            self.output.add_contributor(commit["author"])
+            classification = GlueWorkType.UNKNOWN
             if i < 3:
-                self.output.add_classification(code_agent.classify_data(code_agent.get_commit_prompt(commit)))
+                classification = code_agent.classify_data(code_agent.get_commit_prompt(commit))
+            self.aggregator.add_work(commit["author"], classification)
         for i in range(len(self.data["reviews"])):
             review = self.data["reviews"][i]
-            self.output.add_contributor(review["author"])
+            self.aggregator.add_work(review["author"], GlueWorkType.CODE_REVIEW)
+        self.aggregator.output_work()
