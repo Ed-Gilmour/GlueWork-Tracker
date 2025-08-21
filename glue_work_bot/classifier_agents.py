@@ -3,9 +3,9 @@ from enum import Enum
 import re
 
 class GlueWorkType(Enum):
-    UNKNOWN = -1,
-    MAINTENANCE = 0,
-    QUALITY_ASSURANCE = 1,
+    UNKNOWN = -1
+    MAINTENANCE = 0
+    QUALITY_ASSURANCE = 1
     CODE_REVIEW = 2
 
     def get_label(self):
