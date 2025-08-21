@@ -26,7 +26,7 @@ class ClassifierAgent:
         return self.get_classification_from_response(self.strip_think_tags(self.model.invoke(prompt)))
 
     def get_classification_from_response(self, response):
-        match = re.search(r"\d+", response)
+        match = re.search(r"-?\d+", response)
         if match:
             number = int(match.group())
             try:
