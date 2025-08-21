@@ -9,7 +9,7 @@ class WorkAggregator():
 
     def add_work(self, author, glue_work_type):
         if author in self.authors:
-            self.authors[author][glue_work_type] = self.authors[author].get(key=glue_work_type, default=0) + 1
+            self.authors[author][glue_work_type] = self.authors[author].get(glue_work_type, 0) + 1
         else:
             self.authors[author] = { glue_work_type: 1 }
 
