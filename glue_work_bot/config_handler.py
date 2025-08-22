@@ -24,5 +24,8 @@ class ConfigHandler:
     def get_urls(self):
         return self.config.get('urls', [])
 
+    def get_excluded_users(self):
+        return self.config.get('exclude_users', [])
+
     def get_load_exception(self):
         return self.load_exception

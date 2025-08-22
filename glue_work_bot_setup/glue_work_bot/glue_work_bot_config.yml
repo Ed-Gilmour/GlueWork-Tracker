@@ -1,2 +1,6 @@
 urls:
   - https://github.com/Ed-Gilmour/Bot-Test-Repo
+
+exclude_users:
+# EXAMPLE:
+# - unwanted-bot-name

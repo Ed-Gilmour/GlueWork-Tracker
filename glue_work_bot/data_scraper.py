@@ -7,18 +7,16 @@ import json
 import argparse
 
 class GitHubScraper:
-    def __init__(self):
+    def __init__(self, excluded_users):
         load_dotenv()
         self.github_token = os.getenv("GITHUB_TOKEN")
-        if not self.github_token:
-            raise ValueError("GITHUB_TOKEN is not set!")
-
         self.repo = "flutter/flutter"
         self.base_url = f"https://api.github.com/repos/{self.repo}"
         self.headers = {
             "Authorization": f"Bearer {self.github_token}",
             "Accept": "application/vnd.github.v3+json"
         }
+        self.excluded_users = excluded_users
 
     def github_paginate(self, url, params=None):
         results = []
@@ -102,8 +100,7 @@ class GitHubScraper:
             response.raise_for_status()
             data = response.json()
             for review in data:
-                if review["user"]["type"] != "Bot":
-                    reviews.append(review)
+                reviews.append(review)
         return reviews
 
     def write_glue_work_data(self, data):
@@ -124,6 +121,7 @@ class GitHubScraper:
                     "body": issue.get("body", ""),
                     "author": issue["user"]["login"]
                 } for issue in issues
+                if self.is_user_valid(issue["user"])
             ],
             "pull_requests": [
                 {
@@ -131,20 +129,26 @@ class GitHubScraper:
                     "body": pr.get("body", ""),
                     "author": pr["user"]["login"]
                 } for pr in pull_requests
+                if self.is_user_valid(pr["user"])
             ],
             "commits": [
                 {
                     "message": commit["commit"]["message"],
                     "author": commit["commit"]["author"]["name"]
                 } for commit in commits
+                if self.is_user_valid(commit["user"])
             ],
             "reviews": [
                 {
                     "author": review["user"]["login"]
                 } for review in pull_request_reviews
+                if self.is_user_valid(review["user"])
             ]
         }
         self.write_glue_work_data(data=data)
+
+    def is_user_valid(self, user):
+        return user["login"] not in self.excluded_users and user["type"] != "Bot"
 
 class ConfigScraper:
     def __init__(self):
@@ -155,6 +159,6 @@ class ConfigScraper:
         self.config_handler = ConfigHandler(config_file)
 
 if __name__ == "__main__":
-    github_scraper = GitHubScraper()
     config_scraper = ConfigScraper()
+    github_scraper = GitHubScraper(config_scraper.config_handler.get_excluded_users())
     github_scraper.scrape_github_data(1)
