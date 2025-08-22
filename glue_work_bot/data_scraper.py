@@ -20,7 +20,7 @@ class DataScraper:
         self.github_scraper = GitHubScraper(config_handler.get_excluded_users())
 
     def scrape_github_data(self):
-        self.github_scraper.scrape_github_data(self.retrieved_days)
+        self.github_scraper.scrape_github_data()
 
 class GitHubScraper:
     def __init__(self, excluded_users):
