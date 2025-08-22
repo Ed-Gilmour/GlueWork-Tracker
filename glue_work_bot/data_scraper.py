@@ -6,6 +6,22 @@ import requests
 import json
 import argparse
 
+class DataScraper:
+    retrieved_days = 1
+
+    def __init__(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--config-file', required=True)
+        args = parser.parse_args()
+        config_file = args.config_file
+        config_handler = ConfigHandler(config_file)
+        config_handler.load_config()
+        self.config_scraper = ConfigScraper(config_handler)
+        self.github_scraper = GitHubScraper(config_handler.get_excluded_users())
+
+    def scrape_github_data(self):
+        self.github_scraper.scrape_github_data(self.retrieved_days)
+
 class GitHubScraper:
     def __init__(self, excluded_users):
         load_dotenv()
@@ -155,12 +171,5 @@ class ConfigScraper:
         self.config_handler = config_handler
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config-file', required=True)
-    args = parser.parse_args()
-    config_file = args.config_file
-    config_handler = ConfigHandler(config_file)
-    config_handler.load_config()
-    config_scraper = ConfigScraper(config_handler)
-    github_scraper = GitHubScraper(config_handler.get_excluded_users())
-    github_scraper.scrape_github_data(1)
+    data_scraper = DataScraper()
+    data_scraper.scrape_github_data()
