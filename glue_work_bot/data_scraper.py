@@ -45,20 +45,21 @@ class GitHubScraper:
             query["page"] = page
 
             response = session.get(url, params=query, headers=self.headers)
-            page += 1
             if response.status_code != 200:
-                continue
+                print(f"Break: {url} (status {response.status_code})", flush=True)
+                break
 
             data = response.json()
             if not data:
                 break
 
+            page += 1
             results.extend(data)
 
         return results
 
-    def get_requests_updated_since(self, item_type, days=365, per_page=100, branch=None):
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    def get_requests_updated_since(self, item_type, per_page=100, branch=None):
+        cutoff = datetime.now(timezone.utc) - timedelta(days=DataScraper.retrieved_days)
         since_iso = cutoff.isoformat().replace("+00:00", "Z")
 
         params = {
@@ -83,7 +84,7 @@ class GitHubScraper:
         commits = []
         used_shas = set()
         for branch in branches:
-            branch_commits = self.get_requests_updated_since(item_type="commits", days=days, branch=branch["name"])
+            branch_commits = self.get_requests_updated_since(item_type="commits", branch=branch["name"])
             for commit in branch_commits:
                 if commit["sha"] in used_shas:
                     continue
@@ -105,6 +106,7 @@ class GitHubScraper:
         for url in urls:
             response = session.get(url, headers=self.headers)
             if response.status_code != 200:
+                print(f"Skipping {url} (status {response.status_code})", flush=True)
                 continue
             data = response.json()
             pull_requests.append(data)
@@ -116,6 +118,7 @@ class GitHubScraper:
         for url in urls:
             response = session.get(url + "/reviews", headers=self.headers)
             if response.status_code != 200:
+                print(f"Skipping {url} (status {response.status_code})", flush=True)
                 continue
             data = response.json()
             for review in data:
@@ -128,7 +131,7 @@ class GitHubScraper:
             json.dump(data, f)
 
     def scrape_github_data(self, days):
-        issues = self.get_requests_updated_since(item_type="issues", days=days)
+        issues = self.get_requests_updated_since(item_type="issues")
         pull_requests_urls = self.get_all_pull_request_urls(issues=issues)
         pull_requests = self.get_all_pull_requests(urls=pull_requests_urls)
         pull_request_reviews = self.get_all_pull_request_reviews(urls=pull_requests_urls)
