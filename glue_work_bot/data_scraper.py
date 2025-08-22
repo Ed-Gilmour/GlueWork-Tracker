@@ -79,7 +79,7 @@ class GitHubScraper:
         url = f"{self.base_url}/branches"
         return self.github_paginate(url)
 
-    def get_all_commits(self, days):
+    def get_all_commits(self):
         branches = self.get_all_branches()
         commits = []
         used_shas = set()
@@ -130,12 +130,12 @@ class GitHubScraper:
         with open("temp/glue_work_data.json", "w") as f:
             json.dump(data, f)
 
-    def scrape_github_data(self, days):
+    def scrape_github_data(self):
         issues = self.get_requests_updated_since(item_type="issues")
         pull_requests_urls = self.get_all_pull_request_urls(issues=issues)
         pull_requests = self.get_all_pull_requests(urls=pull_requests_urls)
         pull_request_reviews = self.get_all_pull_request_reviews(urls=pull_requests_urls)
-        commits = self.get_all_commits(days=days)
+        commits = self.get_all_commits()
         data = {
             "issues": [
                 {
