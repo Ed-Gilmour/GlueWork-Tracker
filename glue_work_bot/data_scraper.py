@@ -45,14 +45,15 @@ class GitHubScraper:
             query["page"] = page
 
             response = session.get(url, params=query, headers=self.headers)
-            response.raise_for_status()
+            page += 1
+            if response.status_code != 200:
+                continue
 
             data = response.json()
             if not data:
                 break
 
             results.extend(data)
-            page += 1
 
         return results
 
@@ -103,7 +104,8 @@ class GitHubScraper:
         session = requests.Session()
         for url in urls:
             response = session.get(url, headers=self.headers)
-            response.raise_for_status()
+            if response.status_code != 200:
+                continue
             data = response.json()
             pull_requests.append(data)
         return pull_requests
@@ -113,7 +115,8 @@ class GitHubScraper:
         session = requests.Session()
         for url in urls:
             response = session.get(url + "/reviews", headers=self.headers)
-            response.raise_for_status()
+            if response.status_code != 200:
+                continue
             data = response.json()
             for review in data:
                 reviews.append(review)
