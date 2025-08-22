@@ -134,9 +134,9 @@ class GitHubScraper:
             "commits": [
                 {
                     "message": commit["commit"]["message"],
-                    "author": commit["commit"]["author"]["name"]
+                    "author": commit["author"]["login"]
                 } for commit in commits
-                if self.is_user_valid(commit["user"])
+                if self.is_user_valid(commit["author"])
             ],
             "reviews": [
                 {
