@@ -46,7 +46,7 @@ class GitHubScraper:
 
             response = session.get(url, params=query, headers=self.headers)
             if response.status_code != 200:
-                print(f"Break: {url} (status {response.status_code})", flush=True)
+                print(f"Skipping {url} (status {response.status_code})", flush=True)
                 break
 
             data = response.json()
