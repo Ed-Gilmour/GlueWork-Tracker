@@ -51,6 +51,7 @@ Classify the following GitHub issue as:
 -1 = Unknown
 0 = Maintenance
 1 = Quality Assurance
+If you are unable to classify into any of those given categories classify as -1.
 
 Issue Title:
 {issue["title"]}
@@ -67,6 +68,7 @@ Classify the following GitHub pull request as:
 -1 = Unknown
 0 = Maintenance
 1 = Quality Assurance
+If you are unable to classify into any of those given categories classify as -1.
 
 Pull Request Title:
 {pull_request["title"]}
@@ -83,6 +85,7 @@ Classify the following GitHub commit as:
 -1 = Unknown
 0 = Maintenance
 1 = Quality Assurance
+If you are unable to classify into any of those given categories classify as -1.
 
 Commit Message:
 {commit["message"]}
