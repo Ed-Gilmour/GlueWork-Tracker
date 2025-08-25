@@ -1,13 +1,10 @@
-import transformers
+from transformers import AutoTokenizer
 
 class DeepseekTokenizer:
 	TOKEN_LIMIT = 120000
 
 	def __init__(self):
-		chat_tokenizer_dir = "./glue_work_bot"
-		self.tokenizer = transformers.AutoTokenizer.from_pretrained(
-				chat_tokenizer_dir, trust_remote_code=True
-		)
+		self.tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B")
 
 	def get_token_count(self, prompt):
 		encodings = self.tokenizer(prompt)
