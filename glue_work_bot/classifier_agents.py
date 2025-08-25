@@ -22,7 +22,13 @@ class ClassifierAgent:
         self.aggregator = aggregator
 
     def classify_data(self, prompt):
-        return self.get_classification_from_response(self.strip_think_tags(ollama.generate(model="deepseek-r1:7b", prompt=prompt)))
+        return self.get_classification_from_response(
+            self.strip_think_tags(
+                ollama.generate(
+                    model="deepseek-r1:7b", prompt=prompt
+                )["response"]
+            )
+        )
 
     def get_classification_from_response(self, response):
         match = re.search(r"-?\d+", response)
