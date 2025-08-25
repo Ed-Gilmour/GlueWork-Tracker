@@ -67,7 +67,7 @@ class WorkDistributor:
             classifications = self.code_agent.classify_data(prompt)
 
             for j in range(len(classifications)):
-                print(f"issue {j} by {authors[j]} is {classifications[j].get_label()}", flush=True)
+                print(f"{work_type.get_label()} work {j} by {authors[j]} is {classifications[j].get_label()}", flush=True)
                 self.aggregator.add_work(authors[j], classifications[j])
 
             break
