@@ -1,5 +1,5 @@
-from langchain_ollama import OllamaLLM
 from enum import Enum
+import ollama
 import re
 
 class GlueWorkType(Enum):
@@ -19,11 +19,10 @@ class GlueWorkType(Enum):
 
 class ClassifierAgent:
     def __init__(self, aggregator):
-        self.model = OllamaLLM(model="deepseek-r1:7b", base_url="http://localhost:11434")
         self.aggregator = aggregator
 
     def classify_data(self, prompt):
-        return self.get_classification_from_response(self.strip_think_tags(self.model.invoke(prompt)))
+        return self.get_classification_from_response(self.strip_think_tags(ollama.generate(model="deepseek-r1:7b", prompt=prompt)))
 
     def get_classification_from_response(self, response):
         match = re.search(r"-?\d+", response)
