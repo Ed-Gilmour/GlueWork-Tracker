@@ -54,7 +54,7 @@ class WorkDistributor:
                     elif work_type == WorkType.COMMIT:
                         return self.code_agent.get_commit_prompt(data)
 
-                if self.tokenizer.get_token_count(get_prompt_by_type(prompt_data + [class_data]) > DeepseekTokenizer.TOKEN_LIMIT):
+                if self.tokenizer.get_token_count(get_prompt_by_type(prompt_data + [class_data])) > DeepseekTokenizer.TOKEN_LIMIT:
                     if len(prompt_data) <= 0:
                         i += 1
                     break
