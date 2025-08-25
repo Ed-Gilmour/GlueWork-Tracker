@@ -7,7 +7,7 @@ import json
 import argparse
 
 class DataScraper:
-    retrieved_days = 1
+    RETRIEVED_DAYS = 1
 
     def __init__(self):
         parser = argparse.ArgumentParser()
@@ -59,7 +59,7 @@ class GitHubScraper:
         return results
 
     def get_requests_updated_since(self, item_type, per_page=100, branch=None):
-        cutoff = datetime.now(timezone.utc) - timedelta(days=DataScraper.retrieved_days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=DataScraper.RETRIEVED_DAYS)
         since_iso = cutoff.isoformat().replace("+00:00", "Z")
 
         params = {
