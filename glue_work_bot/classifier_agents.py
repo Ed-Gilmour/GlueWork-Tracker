@@ -22,7 +22,7 @@ class ClassifierAgent:
         self.aggregator = aggregator
 
     def classify_data(self, prompt):
-        return self.get_classification_from_response(
+        return self.get_classifications_from_response(
             self.strip_think_tags(
                 ollama.generate(
                     model="deepseek-r1:7b", prompt=prompt
@@ -30,65 +30,83 @@ class ClassifierAgent:
             )
         )
 
-    def get_classification_from_response(self, response):
-        match = re.search(r"-?\d+", response)
-        if match:
-            number = int(match.group())
+    def get_classifications_from_response(self, response):
+        numbers = re.findall(r"-?\d+", response)
+        results = []
+        for num_str in numbers:
             try:
-                return GlueWorkType(number)
+                number = int(num_str)
+                results.append(GlueWorkType(number))
             except ValueError:
-                return GlueWorkType.UNKNOWN
-        else:
-            return GlueWorkType.UNKNOWN
+                results.append(GlueWorkType.UNKNOWN)
+        return results
 
     def strip_think_tags(self, text):
         return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
 
 class CodeAgent(ClassifierAgent):
-    def get_issue_prompt(self, issue):
-        return f"""
-Classify the following GitHub issue as:
+    def get_issue_prompt(self, issues):
+        prompt = f"""
+Classify the following GitHub issues as:
 -1 = Unknown
 0 = Maintenance
 1 = Quality Assurance
 If you are unable to classify into any of those given categories classify as -1.
+Respond with the classifications to all the GitHub issues top to bottom.
+Answer with only the numbers, no words, no explanation.
 
-Issue Title:
-{issue["title"]}
-
-Issue Body:
-{issue["body"]}
-
-Answer with only the number, no words, no explanation.
 """
+        for i in range(len(issues)):
+            prompt += f"""
 
-    def get_pull_request_prompt(self, pull_request):
-        return f"""
-Classify the following GitHub pull request as:
+Issue {i} Title:
+{issues[i]["title"]}
+
+Issue {i} Body:
+{issues[i]["body"]}
+
+"""
+        return prompt
+
+    def get_pull_request_prompt(self, pull_requests):
+        prompt = f"""
+Classify the following GitHub pull requests as:
 -1 = Unknown
 0 = Maintenance
 1 = Quality Assurance
 If you are unable to classify into any of those given categories classify as -1.
+Respond with the classifications to all the GitHub pull requests top to bottom.
+Answer with only the numbers, no words, no explanation.
 
-Pull Request Title:
-{pull_request["title"]}
-
-Pull Request Body:
-{pull_request["body"]}
-
-Answer with only the number, no words, no explanation.
 """
+        for i in range(len(pull_requests)):
+            prompt += f"""
 
-    def get_commit_prompt(self, commit):
-        return f"""
-Classify the following GitHub commit as:
+Pull Request {i} Title:
+{pull_requests[i]["title"]}
+
+Pull Request {i} Body:
+{pull_requests[i]["body"]}
+
+"""
+        return prompt
+
+    def get_commit_prompt(self, commits):
+        prompt = f"""
+Classify the following GitHub commits as:
 -1 = Unknown
 0 = Maintenance
 1 = Quality Assurance
 If you are unable to classify into any of those given categories classify as -1.
+Respond with the classifications to all the GitHub commits top to bottom.
+Answer with only the numbers, no words, no explanation.
 
-Commit Message:
-{commit["message"]}
-
-Answer with only the number, no words, no explanation.
 """
+        for i in range(len(commits)):
+            prompt += f"""
+
+Commit {i} Message:
+{commits[i]["message"]}
+
+"""
+        return prompt
