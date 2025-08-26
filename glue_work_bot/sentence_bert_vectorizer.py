@@ -61,4 +61,4 @@ I will add a test to ensure this behavior""",
                     3)
     for text, distance in s_data:
         print(f"\nTEXT: {text}\nDISTANCE: {distance}\n")
-        print("\nCLASSIFICATION: " + vectorizer.data[text] + "\n\n")
+        print("\nCLASSIFICATION: " + vectorizer.data[text] + "\n")
