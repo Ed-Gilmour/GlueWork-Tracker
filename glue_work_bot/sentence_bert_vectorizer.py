@@ -5,9 +5,9 @@ import faiss
 import json
 
 class VectorIndexer:
-    MENTORING_TRAINING_PATH = "gluework_repo/glue_work_bot/training_data/mentoring_training_dataset.csv"
-    MENTORING_DATA_PATH = "gluework_repo/glue_work_bot/cached_data/mentoring_data.json"
-    MENTORING_INDEX_PATH = "gluework_repo/glue_work_bot/cached_data/mentoring_index.faiss"
+    MENTORING_TRAINING_PATH = "training_data/mentoring_training_dataset.csv"
+    MENTORING_DATA_PATH = "cached_data/mentoring_data.json"
+    MENTORING_INDEX_PATH = "cached_data/mentoring_index.faiss"
 
     def __init__(self, model_name="all-mpnet-base-v2"):
         self.model = SentenceTransformer(model_name)
