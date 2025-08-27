@@ -29,7 +29,7 @@ class VectorIndexer:
         faiss.write_index(self.index, index_path)
 
     def load_index(self, index_path):
-        self.index = faiss.read_index(index_path)
+        self.index = faiss.read_index(str(index_path))
 
     def search(self, query_text, k=1):
         query_embedding = self.model.encode([query_text]).astype("float32")
