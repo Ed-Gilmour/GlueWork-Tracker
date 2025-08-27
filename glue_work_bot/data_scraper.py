@@ -144,7 +144,7 @@ class GitHubScraper:
     def get_all_comments(self, urls):
         comments = []
         for url in urls:
-            pr_number = int(urls.split("/")[-1])
+            pr_number = int(url.split("/")[-1])
             comments.extend(self.get_issue_comments(pr_number))
             comments.extend(self.get_pull_request_comments(pr_number))
         return comments
