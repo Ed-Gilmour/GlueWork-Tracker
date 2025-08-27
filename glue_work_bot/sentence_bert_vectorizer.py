@@ -1,13 +1,15 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import pandas as pd
+from pathlib import Path
 import faiss
 import json
 
 class VectorIndexer:
-    MENTORING_TRAINING_PATH = "training_data/mentoring_training_dataset.csv"
-    MENTORING_DATA_PATH = "cached_data/mentoring_data.json"
-    MENTORING_INDEX_PATH = "cached_data/mentoring_index.faiss"
+    SCRIPT_DIR = Path(__file__).parent
+    MENTORING_TRAINING_PATH = SCRIPT_DIR / "training_data/mentoring_training_dataset.csv"
+    MENTORING_DATA_PATH = SCRIPT_DIR / "cached_data/mentoring_data.json"
+    MENTORING_INDEX_PATH = SCRIPT_DIR / "cached_data/mentoring_index.faiss"
 
     def __init__(self, model_name="all-mpnet-base-v2"):
         self.model = SentenceTransformer(model_name)
