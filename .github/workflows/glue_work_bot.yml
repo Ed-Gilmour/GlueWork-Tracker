@@ -25,6 +25,9 @@ jobs:
           ref: main
           path: gluework_repo
 
+      - name: List files in GlueWork-Tracker
+        run: ls -R gluework_repo
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
