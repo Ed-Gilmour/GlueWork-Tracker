@@ -5,6 +5,10 @@ import faiss
 import json
 
 class VectorIndexer:
+    MENTORING_TRAINING_PATH = "gluework_repo/glue_work_bot/training_data/mentoring_training_dataset"
+    MENTORING_DATA_PATH = "gluework_repo/glue_work_bot/cached_data/mentoring_data"
+    MENTORING_INDEX_PATH = "gluework_repo/glue_work_bot/cached_data/mentoring_index"
+
     def __init__(self, model_name="all-mpnet-base-v2"):
         self.model = SentenceTransformer(model_name)
         self.index = None
@@ -41,24 +45,10 @@ class VectorIndexer:
             self.data = json.load(f)
 
     def store_mentoring_data(self):
-        self.save_csv_data("glue_work_bot/training_data/mentoring_training_dataset", "comments", "mentoring", "glue_work_bot/cached_data/mentoring_data")
+        self.save_csv_data(self.MENTORING_TRAINING_PATH, "comments", "mentoring", self.MENTORING_DATA_PATH)
         self.build_index(self.encode_texts())
-        self.save_index("glue_work_bot/cached_data/mentoring_index")
+        self.save_index(self.MENTORING_INDEX_PATH)
 
     def load_mentoring_data(self):
-        self.load_csv_data("glue_work_bot/cached_data/mentoring_data")
-        self.load_index("glue_work_bot/cached_data/mentoring_index")
-
-if __name__ == "__main__":
-    vectorizer = VectorIndexer()
-    vectorizer.load_mentoring_data()
-    s_data = vectorizer.search("""
-After looking into the code this is not needed, so if a root is no longer a root without the entirely tree to be build from scratch, it must be keep alive by a globalkey.
-
-The globalkey reparent will cause the activate to be called in the entire subtree, which will causes didChangeDependencies and markNeedsBuild(if it has any dependencies) of the entire to be called.
-
-I will add a test to ensure this behavior""",
-                    3)
-    for text, distance in s_data:
-        print(f"\nTEXT: {text}\nDISTANCE: {distance}\n")
-        print("\nCLASSIFICATION: " + vectorizer.data[text] + "\n")
+        self.load_csv_data(self.MENTORING_DATA_PATH)
+        self.load_index(self.MENTORING_INDEX_PATH)

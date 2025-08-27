@@ -1,4 +1,4 @@
-from classifier_agents import CodeAgent, GlueWorkType
+from classifier_agents import CodeAgent, MentoringAgent, GlueWorkType
 from work_aggregator import WorkAggregator
 
 class WorkDistributor:
@@ -29,4 +29,13 @@ class WorkDistributor:
         for i in range(len(self.data["reviews"])):
             review = self.data["reviews"][i]
             self.aggregator.add_work(review["author"], GlueWorkType.CODE_REVIEW)
+
+        mentoring_agent = MentoringAgent(self.aggregator)
+        for i in range(len(self.data["comments"])):
+            comment = self.data["comments"][i]
+            classification = GlueWorkType.UNKNOWN
+            if i < 3:
+                classification = mentoring_agent.classify_data(mentoring_agent.get_comment_prompt(comment))
+            self.aggregator.add_work(comment["author"], classification)
+
         self.aggregator.output_work()

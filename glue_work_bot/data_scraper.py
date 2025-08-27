@@ -125,6 +125,30 @@ class GitHubScraper:
                 reviews.append(review)
         return reviews
 
+    def get_issue_comments(self, issue_number):
+        url = f"{self.base_url}/issues/{issue_number}/comments"
+        response = requests.get(url, headers=self.headers)
+        if response.status_code != 200:
+            print(f"Skipping {url} (status {response.status_code})", flush=True)
+            return []
+        return response.json()
+
+    def get_pull_request_comments(self, pull_number):
+        url = f"{self.base_url}/pulls/{pull_number}/comments"
+        response = requests.get(url, headers=self.headers)
+        if response.status_code != 200:
+            print(f"Skipping {url} (status {response.status_code})", flush=True)
+            return []
+        return response.json()
+
+    def get_all_comments(self, urls):
+        comments = []
+        for url in urls:
+            pr_number = int(urls.split("/")[-1])
+            comments.extend(self.get_issue_comments(pr_number))
+            comments.extend(self.get_pull_request_comments(pr_number))
+        return comments
+
     def write_glue_work_data(self, data):
         os.makedirs("temp", exist_ok=True)
         with open("temp/glue_work_data.json", "w") as f:
@@ -136,6 +160,7 @@ class GitHubScraper:
         pull_requests = self.get_all_pull_requests(urls=pull_requests_urls)
         pull_request_reviews = self.get_all_pull_request_reviews(urls=pull_requests_urls)
         commits = self.get_all_commits()
+        comments = self.get_all_comments(urls=pull_requests_urls)
         data = {
             "issues": [
                 {
@@ -165,6 +190,13 @@ class GitHubScraper:
                     "author": review["user"]["login"]
                 } for review in pull_request_reviews
                 if self.is_user_valid(review["user"])
+            ],
+            "comments": [
+                {
+                    "body": comment["body"],
+                    "author": comment["user"]["login"]
+                } for comment in comments
+                if self.is_user_valid(comment["user"])
             ]
         }
         self.write_glue_work_data(data=data)
