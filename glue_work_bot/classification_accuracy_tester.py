@@ -54,4 +54,5 @@ if __name__ == "__main__":
     accuracy_tester = BinaryAccuracyTester(training_indexer, test_indexer)
     accuracy_tester.test_accuracy()
 
+# Fix responding with N to everything
 # Get the confusion matrix, precision, recall, and f1-score
