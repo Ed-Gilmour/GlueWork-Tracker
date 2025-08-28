@@ -1,15 +1,7 @@
-import pandas as pd
+from sentence_bert_vectorizer import VectorIndexer
 import ollama
 
 class BinaryAccuracyTester:
-    def __init__(self, csv_path, text_key, classification_key):
-        self.csv_path = csv_path
-        self.text_key = text_key
-        self.classification_key = classification_key
-        self.csv = pd.read_csv("training_data/mentoring_training_dataset.csv")
-        self.true = self.csv["mentoring"].tolist()
-        self.predicted = []
-
     def llm_classify(self, text):
         response = ollama.generate(model="deepseek-r1:7b", prompt=self.get_mentoring_prompt(text))
         return response
@@ -26,13 +18,14 @@ Answer with only Y or N. Nothing else and no explanation.
 """
 
     def test_accuracy(self):
-        for text in self.csv[self.text_key]:
-            prediction = self.llm_classify(text)
-            self.predicted.append(prediction)
-
-        for actual, predicted, text in zip(self.true, self.predicted, self.csv[self.text_key]):
-            print(f"Data: {text}\nActual: {actual}, Predicted: {predicted}\n")
+        Exception("Not implemented")
+        # Loop through test data with rag from training data
 
 if __name__ == "__main__":
-    tester = BinaryAccuracyTester("training_data/mentoring_training_dataset.csv", "comments", "mentoring")
-    tester.test_accuracy()
+    test_indexer = VectorIndexer()
+    training_indexer = VectorIndexer()
+    test_indexer.store_mentoring_test_data()
+    training_indexer.store_mentoring_training_test_data()
+
+# Use RAG with the 80 to test for the 20
+# Get the confusion matrix, precision, recall, and f1
