@@ -36,7 +36,7 @@ Answer with only Y for mentoring and support, or N for not mentoring and support
                 classification = "Yes"
             else:
                 classification = "No"
-            data += f"Comment:\n{text}\nClassification for mentoring and support: {classification}\n"
+            data += f"Example:\n{text}\nClassification for mentoring and support: {classification}\n"
         return data
 
     def test_accuracy(self):
@@ -54,5 +54,5 @@ if __name__ == "__main__":
     accuracy_tester = BinaryAccuracyTester(training_indexer, test_indexer)
     accuracy_tester.test_accuracy()
 
-# Fix responding with N to everything by using data from the paper to give it more information on what is mentoring
+# Test with prompt tuning (excel examples or classification rulebook) instead of RAG to see if accurate enough, if not try with RAG
 # Get the confusion matrix, precision, recall, and f1-score
