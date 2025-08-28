@@ -1,4 +1,5 @@
 from sentence_bert_vectorizer import VectorIndexer
+from classifier_agents import ClassifierAgent
 import ollama
 
 class BinaryAccuracyTester:
@@ -6,9 +7,12 @@ class BinaryAccuracyTester:
         self.training_indexer = training_indexer
         self.test_indexer = test_indexer
 
-    def llm_classify(self, text):
-        response = ollama.generate(model="deepseek-r1:7b", prompt=self.get_mentoring_prompt(text))
-        return response
+    def llm_classify(self, prompt):
+        response = ClassifierAgent.strip_think_tags(ollama.generate(model="deepseek-r1:7b", prompt=prompt))
+        if "Y" in response.lower():
+            return "Y"
+        else:
+            return "N"
 
     def get_mentoring_prompt(self, text):
         return f"""
@@ -42,7 +46,7 @@ Answer with only Y or N. Nothing else and no explanation.
             i += 1
             if i > 3:
                 break
-            predicted = self.llm_classify(text)
+            predicted = self.llm_classify(self.get_mentoring_prompt(text))
             print(f"Text: {text}\nActual: {actual}, Predicted: {predicted}\n")
 
 if __name__ == "__main__":

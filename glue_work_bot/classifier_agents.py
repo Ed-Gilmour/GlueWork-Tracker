@@ -44,7 +44,8 @@ class ClassifierAgent:
         else:
             return GlueWorkType.UNKNOWN
 
-    def strip_think_tags(self, text):
+    @staticmethod
+    def strip_think_tags(text):
         return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
 
 class CodeAgent(ClassifierAgent):
