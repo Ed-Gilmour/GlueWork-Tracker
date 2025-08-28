@@ -16,16 +16,15 @@ class BinaryAccuracyTester:
 
     def get_mentoring_prompt(self, text):
         return f"""
-You specialize in classifying mentoring and support data.
+Classify the following as either mentoring and support or not mentoring and support.
 
 Text to classify:
 {text}
 
-Use the following examples to help classify the data:
+Use the following examples of mentoring and support to help classify the data:
 {self.get_rag_data(text)}
 
-Answer with only Y for mentoring and support, or N for not mentoring and support.
-Answer with only Y or N. Nothing else and no explanation.
+Answer with only Y for mentoring and support, or N for not mentoring and support. Nothing else and no explanation.
 """
 
     def get_rag_data(self, query, k=3):
@@ -37,17 +36,15 @@ Answer with only Y or N. Nothing else and no explanation.
                 classification = "Yes"
             else:
                 classification = "No"
-            data += f"\nComment:\n{text}\nClassification for mentoring and support: {classification}\n"
+            data += f"Comment:\n{text}\nClassification for mentoring and support: {classification}\n"
         return data
 
     def test_accuracy(self):
         i = 0
         for text, actual in self.test_indexer.data.items():
-            i += 1
-            if i > 3:
-                break
             predicted = self.llm_classify(self.get_mentoring_prompt(text))
-            print(f"Text: {text}\nActual: {actual}, Predicted: {predicted}\n")
+            print(f"{i}.\nText: {text}\nActual: {actual}, Predicted: {predicted}\n")
+            i += 1
 
 if __name__ == "__main__":
     test_indexer = VectorIndexer()
