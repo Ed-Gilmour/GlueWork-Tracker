@@ -18,10 +18,10 @@ class BinaryAccuracyTester:
         return f"""
 Classify the following as either mentoring and support or not mentoring and support.
 
-Text to classify:
+Data to classify:
 {text}
 
-Use the following examples of mentoring and support to help classify the data:
+Use the following examples of mentoring and support classifications to help classify the data:
 {self.get_rag_data(text)}
 
 Answer with only Y for mentoring and support, or N for not mentoring and support. Nothing else and no explanation.
@@ -54,5 +54,5 @@ if __name__ == "__main__":
     accuracy_tester = BinaryAccuracyTester(training_indexer, test_indexer)
     accuracy_tester.test_accuracy()
 
-# Fix responding with N to everything
+# Fix responding with N to everything by using data from the paper to give it more information on what is mentoring
 # Get the confusion matrix, precision, recall, and f1-score
