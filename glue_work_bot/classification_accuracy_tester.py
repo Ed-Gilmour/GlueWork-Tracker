@@ -5,8 +5,6 @@ class BinaryAccuracyTester:
     def __init__(self, training_indexer, test_indexer):
         self.training_indexer = training_indexer
         self.test_indexer = test_indexer
-        self.training_indexer.load_mentoring_training_test_data()
-        self.test_indexer.load_mentoring_test_data()
 
     def llm_classify(self, text):
         response = ollama.generate(model="deepseek-r1:7b", prompt=self.get_mentoring_prompt(text))
@@ -39,13 +37,20 @@ Answer with only Y or N. Nothing else and no explanation.
         return data
 
     def test_accuracy(self):
-        Exception("Not implemented")
-        # Loop through test data with rag from training data
+        i = 0
+        for text, actual in self.test_indexer.data.items():
+            i += 1
+            if i > 3:
+                break
+            predicted = self.llm_classify(text)
+            print(f"Text: {text}\nActual: {actual}, Predicted: {predicted}\n")
 
 if __name__ == "__main__":
     test_indexer = VectorIndexer()
     training_indexer = VectorIndexer()
+    training_indexer.load_mentoring_training_test_data()
+    test_indexer.load_mentoring_test_data()
     accuracy_tester = BinaryAccuracyTester(training_indexer, test_indexer)
     accuracy_tester.test_accuracy()
 
-# Get the confusion matrix, precision, recall, and f1
+# Get the confusion matrix, precision, recall, and f1-score
