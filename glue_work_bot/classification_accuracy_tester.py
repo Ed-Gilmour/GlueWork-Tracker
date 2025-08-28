@@ -8,7 +8,7 @@ class BinaryAccuracyTester:
         self.test_indexer = test_indexer
 
     def llm_classify(self, prompt):
-        response = ClassifierAgent.strip_think_tags(ollama.generate(model="deepseek-r1:7b", prompt=prompt))
+        response = ClassifierAgent.strip_think_tags(text=ollama.generate(model="deepseek-r1:7b", prompt=prompt)["response"])
         if "Y" in response.lower():
             return "Y"
         else:
