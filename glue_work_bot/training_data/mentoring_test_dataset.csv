@@ -2,7 +2,7 @@ PR_number,comments,user,date_diff_with_PR_user,mentoring,PR-Author,Predicted
 ant36,"ant-unit-1.3 is in the repo (https://github.com/apache/ant/blob/master/lib/optional/ant-antunit-1.3.jar).
 It seems that you use an Ant version for building this which does not contain this jar.
 
-If you are building Ant itself I recommend cleaning the environment before (unset ANT_HOME) and bootstrap Ant by itself.",janmaterne,-210,Y,GKFX,N
+If you are building Ant itself I recommend cleaning the environment before (unset ANT_HOME) and bootstrap Ant by itself.",janmaterne,-210,Y,GKFX,Y
 cloudstack1258,"@nitin-maharana shouldn't we use the ""recursive"" parameter set to ""true"" too?
 ",rafaelweingartner,-62 days,N,nitin-maharana,N
 hbase2858,":confetti_ball: **+1 overall**
@@ -56,7 +56,7 @@ This message was automatically generated.
 ",Apache-HBase,-139 days,N,ZhaoBQ,N
 tomee72,"1. not that much, we are not that strong about it cause we all have different habits and thinking about it
 2. you can create a new surefire execution for this test with another arquillian container config, that said the embedded testing in openejb-core (which forks by test) should be enough probably
-3. you logged it was read only in the assembler, this is enough for now probably",rmannibucau,233 days,Y,katya-stoycheva,
+3. you logged it was read only in the assembler, this is enough for now probably",rmannibucau,233 days,Y,katya-stoycheva,N
 jackrabbit19,"Hi Alfusainey,
 
 > one change to the json-string: i now encode jcr properties as json objects instead of simple name:value(s) pairs
@@ -73,7 +73,7 @@ I would really try to use name/value pairs as properties. and encode the type ei
 ```
 
 (btw: I'd prefer this discussion on the jackrabbit dev mailing list)
-",tripodsan,69 days,Y,Alfusainey,
+",tripodsan,69 days,Y,Alfusainey,Y
 jackrabbit19,"@Alfusainey while i see the benefit of having less redundant code, i think the additional serialize to xml and then in importXml deserialize again is a severe performance hit. can't you just use the same deserialized objects that represent the information and feed them into the same code?
 
 another thing: to get the acl import working, i would not go about too heavy refactorings of jackrabbit. it will be much more difficult to convince people to accept a severe refactoring with all its potential of bugs or performance penalties over just handling acl nodes with a special handler, with almost no impact on the operations that where already supported.
