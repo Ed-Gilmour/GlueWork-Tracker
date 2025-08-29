@@ -58,11 +58,9 @@ Answer with only Y for mentoring, or N for not mentoring. Nothing else and no ex
     def test_accuracy(self):
         i = 0
         for text, actual in self.test_indexer.data.items():
-            if i >= 5:
-                break
             predicted = self.llm_classify(self.get_mentoring_prompt(text))
             self.predicted[i] = predicted
-            print(f"{i}.\nText: {text}\nActual: {actual}, Predicted: {predicted}\n")
+            print(i, predicted)
             i += 1
 
 if __name__ == "__main__":
