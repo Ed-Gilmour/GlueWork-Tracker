@@ -6,6 +6,7 @@ class BinaryAccuracyTester:
     def __init__(self, training_indexer, test_indexer):
         self.training_indexer = training_indexer
         self.test_indexer = test_indexer
+        self.predicted = [""] * len(test_indexer.csv_data)
 
     def llm_classify(self, prompt):
         response = ClassifierAgent.strip_think_tags(text=ollama.generate(model="deepseek-r1:7b", prompt=prompt)["response"])
@@ -42,7 +43,10 @@ Answer with only Y for mentoring and support, or N for not mentoring and support
     def test_accuracy(self):
         i = 0
         for text, actual in self.test_indexer.data.items():
+            if i >= 3:
+                break
             predicted = self.llm_classify(self.get_mentoring_prompt(text))
+            self.predicted[i] = predicted
             print(f"{i}.\nText: {text}\nActual: {actual}, Predicted: {predicted}\n")
             i += 1
 
@@ -53,6 +57,7 @@ if __name__ == "__main__":
     test_indexer.load_mentoring_test_data()
     accuracy_tester = BinaryAccuracyTester(training_indexer, test_indexer)
     accuracy_tester.test_accuracy()
+    test_indexer.save_mentoring_test_csv_data(accuracy_tester.predicted)
 
 # Test with prompt tuning (excel examples or classification rulebook) instead of RAG to see if accurate enough, if not try with RAG
 # Get the confusion matrix, precision, recall, and f1-score

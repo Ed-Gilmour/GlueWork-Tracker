@@ -13,6 +13,7 @@ class VectorIndexer:
     MENTORING_DATA_PATH = SCRIPT_DIR / "cached_data/mentoring_data.json"
     MENTORING_INDEX_PATH = SCRIPT_DIR / "cached_data/mentoring_index.faiss"
 
+    MENTORING_TEST_CSV_PATH = SCRIPT_DIR / "training_data/mentoring_test_dataset.csv"
     MENTORING_TEST_DATA_PATH = SCRIPT_DIR / "cached_data/mentoring_test_data.json"
     MENTORING_TRAINING_TEST_DATA_PATH = SCRIPT_DIR / "cached_data/mentoring_training_test_data.json"
     MENTORING_TEST_INDEX_PATH = SCRIPT_DIR / "cached_data/mentoring_test_index.faiss"
@@ -21,6 +22,7 @@ class VectorIndexer:
         self.model = SentenceTransformer("all-mpnet-base-v2")
         self.index = None
         self.data = {}
+        self.csv_data = None
 
     def encode_texts(self):
         embeddings = self.model.encode(list(self.data.keys()), convert_to_tensor=False)
@@ -53,8 +55,10 @@ class VectorIndexer:
             )
             if is_test:
                 self.data = dict(zip(test_df[key_name], test_df[value_name]))
+                self.csv_data = pd.DataFrame(test_df)
             else:
                 self.data = dict(zip(train_df[key_name], train_df[value_name]))
+                self.csv_data = pd.DataFrame(train_df)
         else:
             self.data = dict(zip(df[key_name], df[value_name]))
         with open(data_path, "w", encoding="utf-8") as f:
@@ -76,6 +80,10 @@ class VectorIndexer:
     def store_mentoring_test_data(self):
         self.save_csv_data(self.MENTORING_TRAINING_PATH, "comments", "mentoring", self.MENTORING_TEST_DATA_PATH, 0.2, "mentoring", True)
 
+    def save_mentoring_test_csv_data(self, new_column):
+        self.csv_data["Predicted"] = new_column
+        self.csv_data.to_csv(self.MENTORING_TEST_CSV_PATH, index=False)
+
     def store_mentoring_training_test_data(self):
         self.save_csv_data(self.MENTORING_TRAINING_PATH, "comments", "mentoring", self.MENTORING_TRAINING_TEST_DATA_PATH, 0.2, "mentoring", False)
         self.build_index(self.encode_texts())
@@ -83,6 +91,14 @@ class VectorIndexer:
 
     def load_mentoring_test_data(self):
         self.load_csv_data(self.MENTORING_TEST_DATA_PATH)
+        df = pd.read_csv(self.MENTORING_TRAINING_PATH)
+        train_df, test_df = train_test_split(
+            df,
+            test_size=0.2,
+            stratify=df["mentoring"],
+            random_state=42
+        )
+        self.csv_data = pd.DataFrame(test_df)
 
     def load_mentoring_training_test_data(self):
         self.load_csv_data(self.MENTORING_TRAINING_TEST_DATA_PATH)
