@@ -71,6 +71,3 @@ if __name__ == "__main__":
     accuracy_tester = BinaryAccuracyTester(training_indexer, test_indexer)
     accuracy_tester.test_accuracy()
     test_indexer.save_mentoring_test_csv_data(accuracy_tester.predicted)
-
-# Test with prompt tuning (excel examples or classification rulebook) instead of RAG to see if accurate enough, if not try with RAG
-# Get the confusion matrix, precision, recall, and f1-score
