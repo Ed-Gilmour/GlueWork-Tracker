@@ -23,7 +23,7 @@ class DataScraper:
         self.github_scraper.scrape_github_data()
 
 class GitHubScraper:
-    def __init__(self, excluded_users):
+    def __init__(self, excluded_users=[], retrieved_days=DataScraper.retrieved_days):
         load_dotenv()
         self.github_token = os.getenv("GITHUB_TOKEN")
         self.repo = "flutter/flutter"
@@ -33,6 +33,7 @@ class GitHubScraper:
             "Accept": "application/vnd.github.v3+json"
         }
         self.excluded_users = excluded_users
+        self.retrieved_days = retrieved_days
 
     def github_paginate(self, url, params=None):
         results = []
@@ -59,7 +60,7 @@ class GitHubScraper:
         return results
 
     def get_requests_updated_since(self, item_type, per_page=100, branch=None):
-        cutoff = datetime.now(timezone.utc) - timedelta(days=DataScraper.retrieved_days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=self.retrieved_days)
         since_iso = cutoff.isoformat().replace("+00:00", "Z")
 
         params = {
