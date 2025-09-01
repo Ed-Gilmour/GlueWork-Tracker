@@ -9,7 +9,7 @@ class TrainingDataCollector:
     MAINTENANCE_DATA_PATH = SCRIPT_DIR / "training_data/maintenance_dataset.csv"
 
     def __init__(self):
-        self.data_scraper = GitHubScraper(retrieved_days=1)
+        self.data_scraper = GitHubScraper(retrieved_days=7)
 
     def collect_issue_data(self, path):
         issues = self.data_scraper.get_requests_updated_since(item_type="issues")
@@ -17,16 +17,15 @@ class TrainingDataCollector:
         rows = []
         for issue in issues:
             rows.append({
-                "title": issue["title"],
+                "number": issue["number"],
                 "body": issue.get("body", ""),
-                "author": issue["user"]["login"]
             })
 
         with open(path, mode="w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=["title", "body", "author"])
+            writer = csv.DictWriter(f, fieldnames=["number", "body"])
             writer.writeheader()
             writer.writerows(rows)
 
 if __name__ == "__main__":
     collector = TrainingDataCollector()
-    collector.collect_issue_data(collector.MAINTENANCE_DATA_PATH)
+    collector.collect_issue_data(collector.QUALITY_ASSURANCE_DATA_PATH)
