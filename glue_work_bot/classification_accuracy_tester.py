@@ -1,15 +1,21 @@
+from dotenv import load_dotenv
 from sentence_bert_vectorizer import VectorIndexer
-from classifier_agents import ClassifierAgent
-import ollama
+from google import genai
+import os
 
 class BinaryAccuracyTester:
     def __init__(self, training_indexer, test_indexer):
+        load_dotenv()
         self.training_indexer = training_indexer
         self.test_indexer = test_indexer
         self.predicted = [""] * len(test_indexer.csv_data)
+        self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
     def llm_classify(self, prompt):
-        response = ClassifierAgent.strip_think_tags(text=ollama.generate(model="deepseek-r1:7b", prompt=prompt)["response"])
+        response = self.client.models.generate_content(
+            model="gemini-2.5-flash",
+            prompt=prompt
+        ).text
         if "y" in response.lower():
             return "Y"
         else:

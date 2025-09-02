@@ -30,12 +30,11 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Cache dependencies and Deepseek
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cache/pip
-            ~/.ollama/models
           key: ${{ runner.os }}-deps-${{ hashFiles('gluework_repo/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-deps-
@@ -45,17 +44,6 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r gluework_repo/requirements.txt
-
-      - name: Install Ollama
-        run: curl -fsSL https://ollama.com/install.sh | sh
-
-      - name: Start Ollama server
-        run: |
-          nohup ollama serve > ollama.log 2>&1 &
-          sleep 5  # wait a few seconds to make sure it's up
-
-      - name: Pull Deepseek model
-        run: ollama pull deepseek-r1:7b
 
       - name: Scrape Glue Work Data
         working-directory: gluework_repo

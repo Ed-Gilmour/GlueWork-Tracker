@@ -1,7 +1,9 @@
+from dotenv import load_dotenv
 from sentence_bert_vectorizer import VectorIndexer
+from google import genai
 from enum import Enum
-import ollama
 import re
+import os
 
 class GlueWorkType(Enum):
     UNKNOWN = -1
@@ -22,15 +24,16 @@ class GlueWorkType(Enum):
 
 class ClassifierAgent:
     def __init__(self, aggregator):
+        load_dotenv()
         self.aggregator = aggregator
+        self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
     def classify_data(self, prompt):
         return self.get_classification_from_response(
-            self.strip_think_tags(
-                text=ollama.generate(
-                    model="deepseek-r1:7b", prompt=prompt
-                )["response"]
-            )
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash",
+                prompt=prompt
+            ).text
         )
 
     def get_classification_from_response(self, response):
@@ -43,10 +46,6 @@ class ClassifierAgent:
                 return GlueWorkType.UNKNOWN
         else:
             return GlueWorkType.UNKNOWN
-
-    @staticmethod
-    def strip_think_tags(text):
-        return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
 
 class CodeAgent(ClassifierAgent):
     def get_issue_prompt(self, issue):

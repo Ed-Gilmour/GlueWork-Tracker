@@ -1,6 +1,5 @@
 faiss_cpu==1.11.0.post1
 numpy==2.3.2
-ollama==0.5.3
 pandas==2.3.2
 python-dotenv==1.1.1
 PyYAML==6.0.2
