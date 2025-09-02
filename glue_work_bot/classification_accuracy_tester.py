@@ -14,7 +14,7 @@ class BinaryAccuracyTester:
     def llm_classify(self, prompt):
         response = self.client.models.generate_content(
             model="gemini-2.5-flash",
-            prompt=prompt
+            contents=prompt
         ).text
         if "y" in response.lower():
             return "Y"

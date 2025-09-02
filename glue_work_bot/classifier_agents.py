@@ -32,7 +32,7 @@ class ClassifierAgent:
         return self.get_classification_from_response(
             response = self.client.models.generate_content(
                 model="gemini-2.5-flash",
-                prompt=prompt
+                contents=prompt
             ).text
         )
 
