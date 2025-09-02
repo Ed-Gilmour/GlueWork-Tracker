@@ -6,6 +6,9 @@ on:
       config_file:
         required: true
         type: string
+    secrets:
+      GEMINI_API_KEY:
+        required: true
 
 jobs:
   run:
