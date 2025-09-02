@@ -7,7 +7,7 @@ import json
 import argparse
 
 class DataScraper:
-    retrieved_days = 1
+    RETRIEVED_DAYS = 1
 
     def __init__(self):
         parser = argparse.ArgumentParser()
@@ -23,7 +23,7 @@ class DataScraper:
         self.github_scraper.scrape_github_data()
 
 class GitHubScraper:
-    def __init__(self, excluded_users=[], retrieved_days=DataScraper.retrieved_days):
+    def __init__(self, excluded_users=[], retrieved_days=DataScraper.RETRIEVED_DAYS):
         load_dotenv()
         self.github_token = os.getenv("GITHUB_TOKEN")
         self.repo = "flutter/flutter"

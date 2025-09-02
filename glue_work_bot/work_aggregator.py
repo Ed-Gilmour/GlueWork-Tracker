@@ -16,7 +16,7 @@ class WorkAggregator():
 
     def get_contributor_list(self):
         current_utc_datetime = datetime.now(timezone.utc)
-        contributors_str = f"[{current_utc_datetime}]\n\nData from past {DataScraper.retrieved_days} days.\n# Glue Work Contributor List #"
+        contributors_str = f"[{current_utc_datetime}]\n\nData from past {DataScraper.RETRIEVED_DAYS} days.\n# Glue Work Contributor List #"
         for author in self.authors.keys():
             contributors_str += f"\n- {author}"
         return contributors_str
@@ -48,7 +48,7 @@ class WorkAggregator():
 
     def get_glue_work_report(self):
         current_utc_datetime = datetime.now(timezone.utc)
-        report_str = f"[{current_utc_datetime}]\n\nData from past {DataScraper.retrieved_days} days.\n# Glue Work Report #"
+        report_str = f"[{current_utc_datetime}]\n\nData from past {DataScraper.RETRIEVED_DAYS} days.\n# Glue Work Report #"
         for glue_work_type in GlueWorkType:
             total_count = self.get_glue_work_contribution_count(glue_work_type)
             report_str += f"\n## {glue_work_type.get_label()} ##"
