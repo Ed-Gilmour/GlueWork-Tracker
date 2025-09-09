@@ -203,7 +203,7 @@ class GitHubScraper:
         self.write_glue_work_data(data=data)
 
     def is_user_valid(self, user):
-        return user["login"] not in self.excluded_users and user["type"] != "Bot"
+        return user["login"] is not None and user["login"] not in self.excluded_users and user["type"] != "Bot"
 
 class ConfigScraper:
     def __init__(self, config_handler):
