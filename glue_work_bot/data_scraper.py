@@ -7,7 +7,7 @@ import json
 import argparse
 
 class DataScraper:
-    RETRIEVED_DAYS = 1
+    RETRIEVED_DAYS = 30
 
     def __init__(self):
         parser = argparse.ArgumentParser()
