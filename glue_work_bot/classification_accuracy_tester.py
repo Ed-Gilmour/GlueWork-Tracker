@@ -26,23 +26,6 @@ class BinaryAccuracyTester:
 Classify the following comment as either mentoring or not mentoring.
 It's mentoring if it is an instruction, suggestion, or mechanism to fix errors.
 
-Instruction example:
-@caidezhi next time please run `mvn verify` on the project before creating a PR. You would have noticed that checkstyle would have complaint. I'll fix it on our master.
-
-Suggestion example:
-I would still duplicate a WordCount copy into the Spark runner like I did in https://github.com/apache/incubator-beam/pull/539 because it's widely used in the runner's unit tests.
-Maybe this could be removed after the runner is mature enough to rely only on the RunnableOnService tests.
-And like I also said in https://github.com/apache/incubator-beam/pull/539, transitive dependency is your enemy here, I can't come up with something better than adding Spark provided/runtime dependencies.
-This could be resolved by removing the provided scope on spark dependencies from the Spark runner, but I don't think that's a good idea. Looping in @jbonofre WDYT ? this could make the Spark runner Jar become very heavy.. and what about different Spark distributions on clusters ?
-
-Mechanism to fix errors example:
-That is fine. @milamberspace would you mind just doing a force push again to kick off jenkins. I have seen other jenkins runs passing so I think jenkins is just not happy when it has a lot of load.
-
-Not mentoring examples:
-- LGTM, Merging into master and release-1.13
-- This PR currently has merge conflicts, but #1515 is next in line, so you may want to wait till it is merged before you fix these conflicts.  
-- This is not ready. Missing apache header on the new file and there is no test. No idea what this is fixing. 
-
 Comment to classify:
 {text}
 
