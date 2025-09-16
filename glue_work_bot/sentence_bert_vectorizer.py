@@ -6,22 +6,24 @@ from pathlib import Path
 import faiss
 import json
 
+class DataPaths:
+    def __init__(self, name):
+        script_dir = Path(__file__).parent
+        self.training_path = script_dir / f"training_data/{name}_training_dataset.csv"
+        self.data_path = script_dir / f"cached_data/{name}_data.json"
+        self.index_path = script_dir / f"cached_data/{name}_index.faiss"
+        self.test_csv_path = script_dir / f"training_data/{name}_test_dataset.csv"
+        self.test_data_path = script_dir / f"cached_data/{name}_test_data.json"
+        self.training_test_data_path = script_dir / f"cached_data/{name}_training_test_data.json"
+        self.test_index_path = script_dir / f"cached_data/{name}_test_index.faiss"
+
 class VectorIndexer:
-    SCRIPT_DIR = Path(__file__).parent
-
-    MENTORING_TRAINING_PATH = SCRIPT_DIR / "training_data/mentoring_training_dataset.csv"
-    MENTORING_DATA_PATH = SCRIPT_DIR / "cached_data/mentoring_data.json"
-    MENTORING_INDEX_PATH = SCRIPT_DIR / "cached_data/mentoring_index.faiss"
-
-    MENTORING_TEST_CSV_PATH = SCRIPT_DIR / "training_data/mentoring_test_dataset.csv"
-    MENTORING_TEST_DATA_PATH = SCRIPT_DIR / "cached_data/mentoring_test_data.json"
-    MENTORING_TRAINING_TEST_DATA_PATH = SCRIPT_DIR / "cached_data/mentoring_training_test_data.json"
-    MENTORING_TEST_INDEX_PATH = SCRIPT_DIR / "cached_data/mentoring_test_index.faiss"
-
-    def __init__(self):
+    def __init__(self, name):
         self.model = SentenceTransformer("all-mpnet-base-v2")
         self.index = None
         self.data = {}
+        self.name = name
+        self.paths = DataPaths(name)
         self.csv_data = None
 
     def encode_texts(self):
@@ -68,38 +70,38 @@ class VectorIndexer:
         with open(data_path, "r", encoding="utf-8") as f:
             self.data = json.load(f)
 
-    def store_mentoring_data(self):
-        self.save_csv_data(self.MENTORING_TRAINING_PATH, "comments", "mentoring", self.MENTORING_DATA_PATH)
+    def store_data(self):
+        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.data_path)
         self.build_index(self.encode_texts())
-        self.save_index(self.MENTORING_INDEX_PATH)
+        self.save_index(self.paths.index_path)
 
-    def load_mentoring_data(self):
-        self.load_csv_data(self.MENTORING_DATA_PATH)
-        self.load_index(self.MENTORING_INDEX_PATH)
+    def load_data(self):
+        self.load_csv_data(self.paths.data_path)
+        self.load_index(self.paths.index_path)
 
-    def store_mentoring_test_data(self):
-        self.save_csv_data(self.MENTORING_TRAINING_PATH, "comments", "mentoring", self.MENTORING_TEST_DATA_PATH, 0.2, "mentoring", True)
+    def store_test_data(self):
+        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.test_data_path, 0.2, self.name, True)
 
-    def save_mentoring_test_csv_data(self, new_column):
+    def save_test_csv_data(self, new_column):
         self.csv_data["Predicted"] = new_column
-        self.csv_data.to_csv(self.MENTORING_TEST_CSV_PATH, index=False)
+        self.csv_data.to_csv(self.paths.test_csv_path, index=False)
 
-    def store_mentoring_training_test_data(self):
-        self.save_csv_data(self.MENTORING_TRAINING_PATH, "comments", "mentoring", self.MENTORING_TRAINING_TEST_DATA_PATH, 0.2, "mentoring", False)
+    def store_training_test_data(self):
+        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.training_test_data_path, 0.2, self.name, False)
         self.build_index(self.encode_texts())
-        self.save_index(self.MENTORING_TEST_INDEX_PATH)
+        self.save_index(self.paths.test_index_path)
 
-    def load_mentoring_test_data(self):
-        self.load_csv_data(self.MENTORING_TEST_DATA_PATH)
-        df = pd.read_csv(self.MENTORING_TRAINING_PATH)
+    def load_test_data(self):
+        self.load_csv_data(self.paths.test_data_path)
+        df = pd.read_csv(self.paths.training_path)
         train_df, test_df = train_test_split(
             df,
             test_size=0.2,
-            stratify=df["mentoring"],
+            stratify=df[self.name],
             random_state=42
         )
         self.csv_data = pd.DataFrame(test_df)
 
-    def load_mentoring_training_test_data(self):
-        self.load_csv_data(self.MENTORING_TRAINING_TEST_DATA_PATH)
-        self.load_index(self.MENTORING_TEST_INDEX_PATH)
+    def load_training_test_data(self):
+        self.load_csv_data(self.paths.training_test_data_path)
+        self.load_index(self.paths.test_index_path)

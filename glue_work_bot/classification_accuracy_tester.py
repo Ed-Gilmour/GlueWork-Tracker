@@ -70,10 +70,10 @@ Answer with only Y for mentoring, or N for not mentoring. Nothing else and no ex
             i += 1
 
 if __name__ == "__main__":
-    test_indexer = VectorIndexer()
-    training_indexer = VectorIndexer()
-    training_indexer.load_mentoring_training_test_data()
-    test_indexer.load_mentoring_test_data()
+    test_indexer = VectorIndexer("mentoring")
+    training_indexer = VectorIndexer("mentoring")
+    training_indexer.load_training_test_data()
+    test_indexer.load_test_data()
     accuracy_tester = BinaryAccuracyTester(training_indexer, test_indexer)
     accuracy_tester.test_accuracy()
-    test_indexer.save_mentoring_test_csv_data(accuracy_tester.predicted)
+    test_indexer.save_test_csv_data(accuracy_tester.predicted)
