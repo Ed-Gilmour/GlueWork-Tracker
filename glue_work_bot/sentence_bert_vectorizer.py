@@ -105,3 +105,7 @@ class VectorIndexer:
     def load_training_test_data(self):
         self.load_csv_data(self.paths.training_test_data_path)
         self.load_index(self.paths.test_index_path)
+
+    def load_classification_data(self):
+        self.load_csv_data(self.paths.data_path)
+        self.load_index(self.paths.index_path)

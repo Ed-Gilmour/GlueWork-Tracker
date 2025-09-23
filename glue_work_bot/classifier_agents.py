@@ -100,7 +100,7 @@ class MentoringAgent(ClassifierAgent):
     def __init__(self, aggregator):
         super().__init__(aggregator)
         self.vectorizer = VectorIndexer("mentoring")
-        self.vectorizer.load_mentoring_data()
+        self.vectorizer.load_classification_data()
 
     def get_comment_prompt(self, comment):
         return f"""
