@@ -66,9 +66,13 @@ class VectorIndexer:
         with open(data_path, "w", encoding="utf-8") as f:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
 
-    def load_csv_data(self, data_path):
+    def load_index_data(self, data_path):
         with open(data_path, "r", encoding="utf-8") as f:
             self.data = json.load(f)
+
+    def load_csv_data(self, data_path):
+        df = pd.read_csv(data_path)
+        self.csv_data = pd.DataFrame(df)
 
     def store_data(self):
         self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.data_path)
@@ -76,7 +80,7 @@ class VectorIndexer:
         self.save_index(self.paths.index_path)
 
     def load_data(self):
-        self.load_csv_data(self.paths.data_path)
+        self.load_index_data(self.paths.data_path)
         self.load_index(self.paths.index_path)
 
     def store_test_data(self):
@@ -87,25 +91,18 @@ class VectorIndexer:
         self.csv_data.to_csv(self.paths.test_csv_path, index=False)
 
     def store_training_test_data(self):
-        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.training_test_data_path, 0.8, self.name, False)
+        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.training_test_data_path, 0.2, self.name, False)
         self.build_index(self.encode_texts())
         self.save_index(self.paths.test_index_path)
 
     def load_test_data(self):
-        self.load_csv_data(self.paths.test_data_path)
-        df = pd.read_csv(self.paths.training_path)
-        train_df, test_df = train_test_split(
-            df,
-            test_size=0.2,
-            stratify=df[self.name],
-            random_state=42
-        )
-        self.csv_data = pd.DataFrame(test_df)
+        self.load_index_data(self.paths.test_data_path)
+        self.load_csv_data(self.paths.test_csv_path)
 
     def load_training_test_data(self):
-        self.load_csv_data(self.paths.training_test_data_path)
+        self.load_index_data(self.paths.training_test_data_path)
         self.load_index(self.paths.test_index_path)
 
     def load_classification_data(self):
-        self.load_csv_data(self.paths.data_path)
+        self.load_index_data(self.paths.data_path)
         self.load_index(self.paths.index_path)
