@@ -87,7 +87,7 @@ class VectorIndexer:
         self.csv_data.to_csv(self.paths.test_csv_path, index=False)
 
     def store_training_test_data(self):
-        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.training_test_data_path, 0.2, self.name, False)
+        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.training_test_data_path, 0.8, self.name, False)
         self.build_index(self.encode_texts())
         self.save_index(self.paths.test_index_path)
 

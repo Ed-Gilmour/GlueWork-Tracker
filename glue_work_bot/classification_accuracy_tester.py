@@ -29,6 +29,8 @@ It's mentoring if it is an instruction, suggestion, or mechanism to fix errors.
 Comment to classify:
 {text}
 
+{self.get_rag_data(text)}
+
 Answer with only Y for mentoring, or N for not mentoring. Nothing else and no explanation.
 """
 
@@ -41,7 +43,7 @@ Answer with only Y for mentoring, or N for not mentoring. Nothing else and no ex
                 classification = "Yes"
             else:
                 classification = "No"
-            data += f"Example:\n{text}\nClassification for mentoring and support: {classification}\n"
+            data += f"\nExample:\n{text}\nClassification for mentoring and support: {classification}\n"
         return data
 
     def test_accuracy(self):
