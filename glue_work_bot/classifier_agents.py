@@ -97,8 +97,6 @@ Answer with only the number, no words, no explanation.
 """
 
 class MentoringAgent(ClassifierAgent):
-    RAG_COUNT = 3
-
     def __init__(self, aggregator):
         super().__init__(aggregator)
         self.vectorizer = VectorIndexer("mentoring")
@@ -121,7 +119,7 @@ Answer with only the number, no words, no explanation.
 """
 
     def get_rag_data(self, query):
-        responses = self.vectorizer.search(query, self.RAG_COUNT)
+        responses = self.vectorizer.search(query, k=3)
         data = ""
         for text, distance in responses:
             classification = self.vectorizer.data[text]
