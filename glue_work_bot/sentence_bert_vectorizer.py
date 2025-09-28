@@ -3,19 +3,20 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import os
 import faiss
 import json
 
 class DataPaths:
     def __init__(self, name):
         script_dir = Path(__file__).parent
-        self.training_path = script_dir / f"training_data/{name}_training_dataset.csv"
-        self.data_path = script_dir / f"cached_data/{name}_data.json"
-        self.index_path = script_dir / f"cached_data/{name}_index.faiss"
-        self.test_csv_path = script_dir / f"training_data/{name}_test_dataset.csv"
-        self.test_data_path = script_dir / f"cached_data/{name}_test_data.json"
-        self.training_test_data_path = script_dir / f"cached_data/{name}_training_test_data.json"
-        self.test_index_path = script_dir / f"cached_data/{name}_test_index.faiss"
+        self.training_path = script_dir / f"training_data/{name}/{name}_training_dataset.csv"
+        self.data_path = script_dir / f"cached_data/{name}/{name}_data.json"
+        self.index_path = script_dir / f"cached_data/{name}/{name}_index.faiss"
+        self.test_csv_path = script_dir / f"training_data/{name}/{name}_test_dataset.csv"
+        self.test_data_path = script_dir / f"cached_data/{name}/{name}_test_data.json"
+        self.training_test_data_path = script_dir / f"cached_data/{name}/{name}_training_test_data.json"
+        self.test_index_path = script_dir / f"cached_data/{name}/{name}_test_index.faiss"
 
 class VectorIndexer:
     def __init__(self, name):
@@ -36,6 +37,7 @@ class VectorIndexer:
         self.index.add(embeddings_np)
 
     def save_index(self, index_path):
+        os.makedirs(index_path, exist_ok=True)
         faiss.write_index(self.index, str(index_path))
 
     def load_index(self, index_path):
@@ -63,6 +65,7 @@ class VectorIndexer:
                 self.csv_data = pd.DataFrame(train_df)
         else:
             self.data = dict(zip(df[key_name], df[value_name]))
+        os.makedirs(data_path, exist_ok=True)
         with open(data_path, "w", encoding="utf-8") as f:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
 
@@ -88,6 +91,7 @@ class VectorIndexer:
 
     def save_test_csv_data(self, new_column):
         self.csv_data["Predicted"] = new_column
+        os.makedirs(self.paths.test_csv_path, exist_ok=True)
         self.csv_data.to_csv(self.paths.test_csv_path, index=False)
 
     def store_training_test_data(self):
