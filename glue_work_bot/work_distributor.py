@@ -38,7 +38,7 @@ class WorkDistributor:
         for i in range(len(self.data["reviews"])):
             review = self.data["reviews"][i]
             self.aggregator.add_work(review["author"], GlueWorkType.CODE_REVIEW)
-        for i in range(len(self.data)["documentation_changes"]):
+        for i in range(len(self.data["documentation_changes"])):
             documentation_change = self.data["documentation_changes"][i]
             self.aggregator.add_work(documentation_change["author"], GlueWorkType.DOCUMENTATION)
 
