@@ -26,12 +26,6 @@ class WorkDistributor:
             if i < 3:
                 classification = code_agent.classify_data(code_agent.get_commit_prompt(commit))
             self.aggregator.add_work(commit["author"], classification)
-        for i in range(len(self.data["reviews"])):
-            review = self.data["reviews"][i]
-            self.aggregator.add_work(review["author"], GlueWorkType.CODE_REVIEW)
-        for i in range(len(self.data)["documentation_changes"]):
-            documentation_change = self.data["documentation_changes"][i]
-            self.aggregator.add_work(documentation_change["author"], GlueWorkType.DOCUMENTATION)
 
         mentoring_agent = MentoringAgent(self.aggregator)
         for i in range(len(self.data["comments"])):
@@ -40,5 +34,12 @@ class WorkDistributor:
             if i < 3:
                 classification = mentoring_agent.classify_data(mentoring_agent.get_comment_prompt(comment))
             self.aggregator.add_work(comment["author"], classification)
+
+        for i in range(len(self.data["reviews"])):
+            review = self.data["reviews"][i]
+            self.aggregator.add_work(review["author"], GlueWorkType.CODE_REVIEW)
+        for i in range(len(self.data)["documentation_changes"]):
+            documentation_change = self.data["documentation_changes"][i]
+            self.aggregator.add_work(documentation_change["author"], GlueWorkType.DOCUMENTATION)
 
         self.aggregator.output_work()
