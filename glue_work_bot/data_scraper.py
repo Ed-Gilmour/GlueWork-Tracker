@@ -150,6 +150,26 @@ class GitHubScraper:
             comments.extend(self.get_pull_request_comments(pr_number))
         return comments
 
+    def get_commit_details(self, sha):
+        url = f"{self.base_url}/commits/{sha}"
+        response = requests.get(url, headers=self.headers)
+        if response.status_code != 200:
+            print(f"Skipping {url} (status {response.status_code})", flush=True)
+            return None
+        return response.json()
+
+    def get_documentation_authors(self, commits):
+        authors = []
+        for commit in commits:
+            sha = commit["sha"]
+            details = self.get_commit_details(sha)
+            if not details or "files" not in details:
+                continue
+            for f in details["files"]:
+                if f["filename"].endswith(".md"):
+                    authors.append(commit["author"])
+        return authors
+
     def write_glue_work_data(self, data):
         os.makedirs("temp", exist_ok=True)
         with open("temp/glue_work_data.json", "w") as f:
@@ -162,6 +182,7 @@ class GitHubScraper:
         pull_request_reviews = self.get_all_pull_request_reviews(urls=pull_requests_urls)
         commits = self.get_all_commits()
         comments = self.get_all_comments(urls=pull_requests_urls)
+        documentation_authors = self.get_documentation_authors(commits=commits)
         data = {
             "issues": [
                 {
@@ -198,6 +219,12 @@ class GitHubScraper:
                     "author": comment["user"]["login"]
                 } for comment in comments
                 if self.is_user_valid(comment["user"])
+            ],
+            "documentation_changes": [
+                {
+                    "author": author["login"]
+                } for author in documentation_authors
+                if self.is_user_valid(author)
             ]
         }
         self.write_glue_work_data(data=data)

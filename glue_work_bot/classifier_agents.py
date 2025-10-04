@@ -11,6 +11,7 @@ class GlueWorkType(Enum):
     QUALITY_ASSURANCE = 1
     CODE_REVIEW = 2
     MENTORING = 3
+    DOCUMENTATION = 4
 
     def get_label(self):
         labels = {
@@ -18,7 +19,8 @@ class GlueWorkType(Enum):
             GlueWorkType.MAINTENANCE: "Maintenance",
             GlueWorkType.QUALITY_ASSURANCE: "Quality Assurance",
             GlueWorkType.CODE_REVIEW: "Code Review",
-            GlueWorkType.MENTORING: "Mentoring and Support"
+            GlueWorkType.MENTORING: "Mentoring and Support",
+            GlueWorkType.DOCUMENTATION: "Documentation"
         }
         return labels[self]
 
