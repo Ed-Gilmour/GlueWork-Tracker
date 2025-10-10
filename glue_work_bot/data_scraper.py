@@ -300,5 +300,5 @@ class ConfigScraper:
 
 if __name__ == "__main__":
     data_scraper = DataScraper()
-    # data_scraper.scrape_github_data()
+    data_scraper.scrape_github_data()
     data_scraper.scrape_stackexchange_data()
