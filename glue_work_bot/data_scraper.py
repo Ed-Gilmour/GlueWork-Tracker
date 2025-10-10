@@ -36,7 +36,7 @@ class DataScraper:
         if key not in existing_data:
             existing_data[key] = []
 
-        existing_data[key].extend(data)
+        existing_data[key].append(data)
 
         with open(file_path, "w") as f:
             json.dump(existing_data, f)
