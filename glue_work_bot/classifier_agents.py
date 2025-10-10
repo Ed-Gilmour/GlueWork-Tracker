@@ -12,6 +12,7 @@ class GlueWorkType(Enum):
     CODE_REVIEW = 2
     MENTORING = 3
     DOCUMENTATION = 4
+    COMMUNITY_MANAGMENT = 5
 
     def get_label(self):
         labels = {
@@ -20,7 +21,8 @@ class GlueWorkType(Enum):
             GlueWorkType.QUALITY_ASSURANCE: "Quality Assurance",
             GlueWorkType.CODE_REVIEW: "Code Review",
             GlueWorkType.MENTORING: "Mentoring and Support",
-            GlueWorkType.DOCUMENTATION: "Documentation"
+            GlueWorkType.DOCUMENTATION: "Documentation",
+            GlueWorkType.COMMUNITY_MANAGMENT: "Community Managment"
         }
         return labels[self]
 
@@ -120,14 +122,19 @@ Use the following examples to help classify the comment:
 Answer with only the number, no words, no explanation.
 """
 
-    def get_rag_data(self, query):
-        responses = self.vectorizer.search(query, k=3)
-        data = ""
-        for text, distance in responses:
-            classification = self.vectorizer.data[text]
-            if classification == "Y":
-                classification = "Yes"
-            else:
-                classification = "No"
-            data += f"\nComment:\n{text}\nClassification for mentoring and support: {classification}\n"
-        return data
+class CommunityAgent(ClassifierAgent):
+    def __init__(self, aggregator):
+        super().__init__(aggregator)
+
+    def get_community_managment_prompt(self, post):
+        return f"""
+Classify the following StackExchange post as:
+-1 = Unknown
+5 = Community Managment
+If you are unable to classify into any of those given categories classify as -1.
+
+Post Body:
+{post["body"]}
+
+Answer with only the number, no words, no explanation.
+"""

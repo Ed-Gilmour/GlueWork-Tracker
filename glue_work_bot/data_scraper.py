@@ -18,9 +18,79 @@ class DataScraper:
         config_handler.load_config()
         self.config_scraper = ConfigScraper(config_handler)
         self.github_scraper = GitHubScraper(config_handler.get_excluded_users())
+        self.stackexchange_scraper = StackExchangeScraper()
+
+    def write_data(self, data, key):
+        os.makedirs("temp", exist_ok=True)
+        file_path = "temp/glue_work_data.json"
+
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "r") as f:
+                    existing_data = json.load(f)
+            except json.JSONDecodeError:
+                existing_data = {}
+        else:
+            existing_data = {}
+
+        if key not in existing_data:
+            existing_data[key] = []
+
+        existing_data[key].extend(data)
+
+        with open(file_path, "w") as f:
+            json.dump(existing_data, f)
+
+    def scrape_stackexchange_data(self):
+        self.write_data(self.stackexchange_scraper.scrape_stackexchange_data(), "stackexchange")
 
     def scrape_github_data(self):
-        self.github_scraper.scrape_github_data()
+        self.write_data(self.github_scraper.scrape_github_data(), "github")
+
+class StackExchangeScraper:
+    def __init__(self):
+        load_dotenv()
+        self.base_url = "https://api.stackexchange.com/2.3"
+        self.site = "stackoverflow"
+        self.tag = "flutter"
+        self.retrieved_days = DataScraper.RETRIEVED_DAYS
+
+    def fetch_recent_questions(self):
+        cutoff = datetime.now(timezone.utc) - timedelta(days=DataScraper.RETRIEVED_DAYS)
+        fromdate = int(cutoff.timestamp())
+
+        params = {
+            "order": "desc",
+            "sort": "creation",
+            "tagged": self.tag,
+            "site": self.site,
+            "pagesize": 100,
+            "fromdate": fromdate,
+            "filter": "withbody"
+        }
+
+        url = f"{self.base_url}/questions"
+        response = requests.get(url, params=params)
+        if response.status_code != 200:
+            print(f"Skipping {url} (status {response.status_code})", flush=True)
+            return []
+
+        data = response.json()
+        return data.get("items", [])
+
+    def scrape_stackexchange_data(self):
+        questions = self.fetch_recent_questions()
+        data = {
+            "posts": [
+                {
+                    "title": q["title"],
+                    "body": q.get("body", ""),
+                    "author": q["owner"].get("display_name", "Unknown")
+                }
+                for q in questions
+            ]
+        }
+        return data
 
 class GitHubScraper:
     def __init__(self, excluded_users=[], retrieved_days=DataScraper.RETRIEVED_DAYS):
@@ -170,11 +240,6 @@ class GitHubScraper:
                     authors.append(commit["author"])
         return authors
 
-    def write_glue_work_data(self, data):
-        os.makedirs("temp", exist_ok=True)
-        with open("temp/glue_work_data.json", "w") as f:
-            json.dump(data, f)
-
     def scrape_github_data(self):
         issues = self.get_requests_updated_since(item_type="issues")
         pull_requests_urls = self.get_all_pull_request_urls(issues=issues)
@@ -227,7 +292,7 @@ class GitHubScraper:
                 if self.is_user_valid(author)
             ]
         }
-        self.write_glue_work_data(data=data)
+        return data
 
     def is_user_valid(self, user):
         return user["login"] is not None and user["login"] not in self.excluded_users and user["type"] != "Bot"
@@ -238,4 +303,5 @@ class ConfigScraper:
 
 if __name__ == "__main__":
     data_scraper = DataScraper()
-    data_scraper.scrape_github_data()
+    # data_scraper.scrape_github_data()
+    data_scraper.scrape_stackexchange_data()
