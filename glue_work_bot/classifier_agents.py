@@ -122,6 +122,18 @@ Use the following examples to help classify the comment:
 Answer with only the number, no words, no explanation.
 """
 
+    def get_rag_data(self, query):
+        responses = self.vectorizer.search(query, k=3)
+        data = ""
+        for text, distance in responses:
+            classification = self.vectorizer.data[text]
+            if classification == "Y":
+                classification = "Yes"
+            else:
+                classification = "No"
+            data += f"\nComment:\n{text}\nClassification for mentoring and support: {classification}\n"
+        return data
+
 class CommunityAgent(ClassifierAgent):
     def __init__(self, aggregator):
         super().__init__(aggregator)
