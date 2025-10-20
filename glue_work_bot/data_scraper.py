@@ -53,7 +53,7 @@ class StackExchangeScraper:
         self.retrieved_days = DataScraper.RETRIEVED_DAYS
 
     def fetch_recent_questions(self):
-        cutoff = datetime.now(timezone.utc) - timedelta(days=DataScraper.RETRIEVED_DAYS)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=self.retrieved_days)
         fromdate = int(cutoff.timestamp())
 
         params = {
@@ -63,7 +63,6 @@ class StackExchangeScraper:
             "site": self.site,
             "pagesize": 100,
             "fromdate": fromdate,
-            "filter": "withbody"
         }
 
         url = f"{self.base_url}/questions"
@@ -73,18 +72,50 @@ class StackExchangeScraper:
             return []
 
         data = response.json()
-        return data.get("items", [])
+        return [q["question_id"] for q in data.get("items", [])]
+
+    def fetch_answers_for_questions(self, question_ids):
+        """Fetch answers for a list of question IDs."""
+        if not question_ids:
+            return []
+
+        all_answers = []
+        chunk_size = 20
+
+        for i in range(0, len(question_ids), chunk_size):
+            chunk = question_ids[i:i+chunk_size]
+            ids_str = ";".join(map(str, chunk))
+
+            url = f"{self.base_url}/questions/{ids_str}/answers"
+            params = {
+                "order": "desc",
+                "sort": "creation",
+                "site": self.site,
+                "pagesize": 100,
+                "filter": "withbody"
+            }
+
+            response = requests.get(url, params=params)
+            if response.status_code != 200:
+                print(f"Skipping {url} (status {response.status_code})", flush=True)
+                continue
+
+            data = response.json()
+            all_answers.extend(data.get("items", []))
+
+        return all_answers
 
     def scrape_stackexchange_data(self):
-        questions = self.fetch_recent_questions()
+        question_ids = self.fetch_recent_questions()
+        answers = self.fetch_answers_for_questions(question_ids)
+
         data = {
-            "posts": [
+            "replies": [
                 {
-                    "title": q["title"],
-                    "body": q.get("body", ""),
-                    "author": q["owner"].get("display_name", "Unknown")
+                    "body": a.get("body", ""),
+                    "author": a["owner"].get("display_name", "Unknown")
                 }
-                for q in questions
+                for a in answers
             ]
         }
         return data

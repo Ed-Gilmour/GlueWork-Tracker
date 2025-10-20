@@ -38,8 +38,8 @@ class WorkDistributor:
             self.aggregator.add_work(comment["author"], classification)
 
         community_agent = CommunityAgent(self.aggregator)
-        for i in range(len(stackexchange_data["posts"])):
-            post = stackexchange_data["posts"][i]
+        for i in range(len(stackexchange_data["replies"])):
+            post = stackexchange_data["replies"][i]
             classification = GlueWorkType.UNKNOWN
             if i < 3:
                 classification = community_agent.classify_data(community_agent.get_community_managment_prompt(post))
