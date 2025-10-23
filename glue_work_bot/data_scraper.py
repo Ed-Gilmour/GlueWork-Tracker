@@ -1,23 +1,21 @@
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
-from config_handler import ConfigHandler
 import os
 import requests
 import json
-import argparse
 
 class DataScraper:
     RETRIEVED_DAYS = 1
 
     def __init__(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--config-file', required=True)
-        args = parser.parse_args()
-        config_file = args.config_file
-        config_handler = ConfigHandler(config_file)
-        config_handler.load_config()
-        self.config_scraper = ConfigScraper(config_handler)
-        self.github_scraper = GitHubScraper(config_handler.get_excluded_users())
+        # parser = argparse.ArgumentParser()
+        # parser.add_argument('--config-file', required=True)
+        # args = parser.parse_args()
+        # config_file = args.config_file
+        # config_handler = ConfigHandler(config_file)
+        # config_handler.load_config()
+        # self.config_scraper = ConfigScraper(config_handler)
+        self.github_scraper = GitHubScraper([])
         self.stackexchange_scraper = StackExchangeScraper()
 
     def write_data(self, data, key):
@@ -324,10 +322,6 @@ class GitHubScraper:
 
     def is_user_valid(self, user):
         return user["login"] is not None and user["login"] not in self.excluded_users and user["type"] != "Bot"
-
-class ConfigScraper:
-    def __init__(self, config_handler):
-        self.config_handler = config_handler
 
 if __name__ == "__main__":
     data_scraper = DataScraper()

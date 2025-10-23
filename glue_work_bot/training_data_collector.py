@@ -3,29 +3,29 @@ from data_scraper import GitHubScraper
 from pathlib import Path
 
 class TrainingDataCollector:
-    SCRIPT_DIR = Path(__file__).parent
+    RETRIEVED_DAYS = 30
 
-    QUALITY_ASSURANCE_DATA_PATH = SCRIPT_DIR / "training_data/quality_assurance_dataset.csv"
-    MAINTENANCE_DATA_PATH = SCRIPT_DIR / "training_data/maintenance_dataset.csv"
+    def __init__(self, name):
+        self.data_scraper = GitHubScraper(self.RETRIEVED_DAYS)
+        script_dir = Path(__file__).parent
+        self.data_path = script_dir / f"training_data/{name}_dataset.csv"
 
-    def __init__(self):
-        self.data_scraper = GitHubScraper(retrieved_days=7)
-
-    def collect_issue_data(self, path):
+    def collect_mentoring_data(self):
         issues = self.data_scraper.get_requests_updated_since(item_type="issues")
+        pull_requests_urls = self.data_scraper.get_all_pull_request_urls(issues=issues)
+        comments = self.data_scraper.get_all_comments(urls=pull_requests_urls)
 
         rows = []
-        for issue in issues:
+        for comment in comments:
             rows.append({
-                "number": issue["number"],
-                "body": issue.get("body", ""),
+                "body": comment["body"]
             })
 
-        with open(path, mode="w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=["number", "body"])
+        with open(self.data_path, mode="w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=["body"])
             writer.writeheader()
             writer.writerows(rows)
 
 if __name__ == "__main__":
-    collector = TrainingDataCollector()
-    collector.collect_issue_data(collector.QUALITY_ASSURANCE_DATA_PATH)
+    collector = TrainingDataCollector("mentoring")
+    collector.collect_mentoring_data()
