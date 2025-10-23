@@ -8,7 +8,7 @@ class TrainingDataCollector:
     def __init__(self, name):
         self.data_scraper = GitHubScraper(self.RETRIEVED_DAYS)
         script_dir = Path(__file__).parent
-        self.data_path = script_dir / f"training_data/{name}_dataset.csv"
+        self.data_path = script_dir / f"training_data/{name}/{name}_dataset.csv"
 
     def collect_mentoring_data(self):
         issues = self.data_scraper.get_requests_updated_since(item_type="issues")
