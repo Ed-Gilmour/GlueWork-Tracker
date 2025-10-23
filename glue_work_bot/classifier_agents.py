@@ -7,22 +7,12 @@ import os
 
 class GlueWorkType(Enum):
     UNKNOWN = -1
-    MAINTENANCE = 0
-    QUALITY_ASSURANCE = 1
-    CODE_REVIEW = 2
-    MENTORING = 3
-    DOCUMENTATION = 4
-    COMMUNITY_MANAGMENT = 5
+    MENTORING = 0
 
     def get_label(self):
         labels = {
             GlueWorkType.UNKNOWN: "Unknown",
-            GlueWorkType.MAINTENANCE: "Maintenance",
-            GlueWorkType.QUALITY_ASSURANCE: "Quality Assurance",
-            GlueWorkType.CODE_REVIEW: "Code Review",
-            GlueWorkType.MENTORING: "Mentoring and Support",
-            GlueWorkType.DOCUMENTATION: "Documentation",
-            GlueWorkType.COMMUNITY_MANAGMENT: "Community Managment"
+            GlueWorkType.MENTORING: "Mentoring and Support"
         }
         return labels[self]
 
@@ -51,55 +41,6 @@ class ClassifierAgent:
         else:
             return GlueWorkType.UNKNOWN
 
-class CodeAgent(ClassifierAgent):
-    def get_issue_prompt(self, issue):
-        return f"""
-Classify the following GitHub issue as:
--1 = Unknown
-0 = Maintenance
-1 = Quality Assurance
-If you are unable to classify into any of those given categories classify as -1.
-
-Issue Title:
-{issue["title"]}
-
-Issue Body:
-{issue["body"]}
-
-Answer with only the number, no words, no explanation.
-"""
-
-    def get_pull_request_prompt(self, pull_request):
-        return f"""
-Classify the following GitHub pull request as:
--1 = Unknown
-0 = Maintenance
-1 = Quality Assurance
-If you are unable to classify into any of those given categories classify as -1.
-
-Pull Request Title:
-{pull_request["title"]}
-
-Pull Request Body:
-{pull_request["body"]}
-
-Answer with only the number, no words, no explanation.
-"""
-
-    def get_commit_prompt(self, commit):
-        return f"""
-Classify the following GitHub commit as:
--1 = Unknown
-0 = Maintenance
-1 = Quality Assurance
-If you are unable to classify into any of those given categories classify as -1.
-
-Commit Message:
-{commit["message"]}
-
-Answer with only the number, no words, no explanation.
-"""
-
 class MentoringAgent(ClassifierAgent):
     def __init__(self, aggregator):
         super().__init__(aggregator)
@@ -110,43 +51,26 @@ class MentoringAgent(ClassifierAgent):
         return f"""
 Classify the following GitHub comment as:
 -1 = Unknown
-3 = Mentoring and Support
+0 = Mentoring and Support
 If you are unable to classify into any of those given categories classify as -1.
 
 Comment Body:
 {comment["body"]}
 
-Use the following examples to help classify the comment:
-{self.get_rag_data(comment["body"])}
-
 Answer with only the number, no words, no explanation.
 """
 
-    def get_rag_data(self, query):
-        responses = self.vectorizer.search(query, k=3)
-        data = ""
-        for text, distance in responses:
-            classification = self.vectorizer.data[text]
-            if classification == "Y":
-                classification = "Yes"
-            else:
-                classification = "No"
-            data += f"\nComment:\n{text}\nClassification for mentoring and support: {classification}\n"
-        return data
+    # Use the following examples to help classify the comment:
+    # {self.get_rag_data(comment["body"])}
 
-class CommunityAgent(ClassifierAgent):
-    def __init__(self, aggregator):
-        super().__init__(aggregator)
-
-    def get_community_managment_prompt(self, post):
-        return f"""
-Classify the following StackExchange post as:
--1 = Unknown
-5 = Community Managment
-If you are unable to classify into any of those given categories classify as -1.
-
-Post Body:
-{post["body"]}
-
-Answer with only the number, no words, no explanation.
-"""
+    # def get_rag_data(self, query):
+    #     responses = self.vectorizer.search(query, k=3)
+    #     data = ""
+    #     for text, distance in responses:
+    #         classification = self.vectorizer.data[text]
+    #         if classification == "Y":
+    #             classification = "Yes"
+    #         else:
+    #             classification = "No"
+    #         data += f"\nComment:\n{text}\nClassification for mentoring and support: {classification}\n"
+    #     return data
