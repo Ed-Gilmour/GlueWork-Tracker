@@ -17,6 +17,9 @@ class DataPaths:
         self.test_data_path = script_dir / f"cached_data/{name}/{name}_test_data.json"
         self.training_test_data_path = script_dir / f"cached_data/{name}/{name}_training_test_data.json"
         self.test_index_path = script_dir / f"cached_data/{name}/{name}_test_index.faiss"
+        self.cached_path = script_dir / f"cached_data/{name}"
+        self.training_path = script_dir / f"training_data/{name}"
+
 
 class VectorIndexer:
     def __init__(self, name):
@@ -37,7 +40,7 @@ class VectorIndexer:
         self.index.add(embeddings_np)
 
     def save_index(self, index_path):
-        os.makedirs(index_path, exist_ok=True)
+        os.makedirs(self.paths.cached_path, exist_ok=True)
         faiss.write_index(self.index, str(index_path))
 
     def load_index(self, index_path):
@@ -65,7 +68,7 @@ class VectorIndexer:
                 self.csv_data = pd.DataFrame(train_df)
         else:
             self.data = dict(zip(df[key_name], df[value_name]))
-        os.makedirs(data_path, exist_ok=True)
+        os.makedirs(self.paths.cached_path, exist_ok=True)
         with open(data_path, "w", encoding="utf-8") as f:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
 
@@ -91,7 +94,7 @@ class VectorIndexer:
 
     def save_test_csv_data(self, new_column):
         self.csv_data["Predicted"] = new_column
-        os.makedirs(self.paths.test_csv_path, exist_ok=True)
+        os.makedirs(self.paths.training_path, exist_ok=True)
         self.csv_data.to_csv(self.paths.test_csv_path, index=False)
 
     def store_training_test_data(self):

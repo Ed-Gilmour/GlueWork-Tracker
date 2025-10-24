@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from sentence_bert_vectorizer import VectorIndexer
+from vector_indexer import VectorIndexer
 from google import genai
 from enum import Enum
 import re
@@ -42,6 +42,7 @@ class ClassifierAgent:
 
 class MentoringAgent(ClassifierAgent):
     def __init__(self):
+        super().__init__()
         self.vectorizer = VectorIndexer("mentoring")
         self.vectorizer.load_classification_data()
 
