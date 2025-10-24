@@ -17,9 +17,8 @@ class GlueWorkType(Enum):
         return labels[self]
 
 class ClassifierAgent:
-    def __init__(self, aggregator):
+    def __init__(self):
         load_dotenv()
-        self.aggregator = aggregator
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
     def classify_data(self, prompt):
@@ -42,8 +41,7 @@ class ClassifierAgent:
             return GlueWorkType.UNKNOWN
 
 class MentoringAgent(ClassifierAgent):
-    def __init__(self, aggregator):
-        super().__init__(aggregator)
+    def __init__(self):
         self.vectorizer = VectorIndexer("mentoring")
         self.vectorizer.load_classification_data()
 
@@ -55,7 +53,7 @@ Classify the following GitHub comment as:
 If you are unable to classify into any of those given categories classify as -1.
 
 Comment Body:
-{comment["body"]}
+{comment}
 
 Answer with only the number, no words, no explanation.
 """

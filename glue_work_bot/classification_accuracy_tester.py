@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 from sentence_bert_vectorizer import VectorIndexer
+from classifier_agents import MentoringAgent
 from google import genai
+import csv
 import os
 
 class BinaryAccuracyTester:
@@ -16,43 +18,22 @@ class BinaryAccuracyTester:
             model="gemini-2.5-flash",
             contents=prompt
         ).text
-        if "y" in response.lower():
+        if "0" in response.lower():
             return "Y"
         else:
             return "N"
 
-    def get_mentoring_prompt(self, text):
-        return f"""
-Classify the following comment as either mentoring or not mentoring.
-It's mentoring if it is an instruction, suggestion, or mechanism to fix errors.
-
-Comment to classify:
-{text}
-
-{self.get_rag_data(text)}
-
-Answer with only Y for mentoring, or N for not mentoring. Nothing else and no explanation.
-"""
-
-    def get_rag_data(self, query, k=3):
-        responses = self.training_indexer.search(query, k)
-        data = ""
-        for text, distance in responses:
-            classification = self.training_indexer.data[text]
-            if classification == "Y":
-                classification = "Yes"
-            else:
-                classification = "No"
-            data += f"\nExample:\n{text}\nClassification for mentoring and support: {classification}\n"
-        return data
-
-    def test_accuracy(self):
-        i = 0
-        for text, actual in self.test_indexer.data.items():
-            predicted = self.llm_classify(self.get_mentoring_prompt(text))
-            self.predicted[i] = predicted
-            print(i, predicted)
-            i += 1
+    def test_accuracy(self, csv_path):
+        mentoring_agent = MentoringAgent()
+        self.predicted = {}
+        with open(csv_path, newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            for i, row in enumerate(reader):
+                if i == 0:
+                    continue
+                predicted = self.llm_classify(mentoring_agent.get_comment_prompt(row[0]))
+                self.predicted[i] = predicted
+                print(i, predicted)
 
 if __name__ == "__main__":
     test_indexer = VectorIndexer("mentoring")
@@ -60,5 +41,5 @@ if __name__ == "__main__":
     training_indexer.load_training_test_data()
     test_indexer.load_test_data()
     accuracy_tester = BinaryAccuracyTester(training_indexer, test_indexer)
-    accuracy_tester.test_accuracy()
+    accuracy_tester.test_accuracy("glue_work_bot/training_data/mentoring/mentoring_dataset.csv")
     test_indexer.save_test_csv_data(accuracy_tester.predicted)
