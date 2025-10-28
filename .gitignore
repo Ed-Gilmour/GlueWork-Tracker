@@ -182,3 +182,5 @@ cython_debug/
 
 # pycharm IDE
 .idea
+
+.python-version
