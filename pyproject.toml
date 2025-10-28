@@ -3,5 +3,25 @@ name = "gluework-tracker"
 version = "0.1.0"
 description = "GitHub bot is for analyzing Glue Work contributions contributors have made in OSS projects."
 readme = "README.md"
-requires-python = ">=3.10,<4.0"
-dependencies = []
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "faiss_cpu>=1.11.0.post1",
+    "numpy>=2.3.2",
+    "pandas>=2.3.2",
+    "python-dotenv>=1.1.1",
+    "PyYAML>=6.0.2",
+    "Requests>=2.32.5",
+    "sentence_transformers>=5.1.0",
+    "google-genai>=1.32.0",
+]
+
+[dependency-groups]
+dev = [
+    "coverage",
+    "pyright",
+    "pytest",
+    "pytest-cov",
+    "pytest-nunit",
+    "setuptools",
+    "ruff",
+]
