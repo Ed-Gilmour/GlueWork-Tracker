@@ -13,6 +13,7 @@ class GlueWorkType(Enum):
     MENTORING = 3
     DOCUMENTATION = 4
     COMMUNITY_MANAGMENT = 5
+    LICENSE = 6
 
     def get_label(self):
         labels = {
