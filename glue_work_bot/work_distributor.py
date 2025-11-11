@@ -54,5 +54,8 @@ class WorkDistributor:
         for i in range(len(github_data["license"])):
             license = github_data["license"][i]
             self.aggregator.add_work(license["author"], GlueWorkType.LICENSE)
+        for i in range(len(github_data["issues"])):
+            issue = github_data["issues"][i]
+            self.aggregator.add_work(issue["author"], GlueWorkType.REPORTING)
 
         self.aggregator.output_work()

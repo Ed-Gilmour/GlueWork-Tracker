@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from config_handler import ConfigHandler
 import os
-import re
 import requests
 import json
 import argparse
