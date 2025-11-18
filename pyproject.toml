@@ -24,6 +24,15 @@ dev = [
     "pytest-nunit",
     "setuptools",
     "ruff",
+    # documentation tooling
+    "mkdocs",
+    "mkdocs-awesome-pages-plugin",
+    "mkdocs-material",
+    "mkdocs-video",
+    "mkdocs-glightbox",
+    "mdx-truly-sane-lists",
+    "mkdocstrings",
+    "mkdocstrings-python",
 ]
 
 [build-system]
