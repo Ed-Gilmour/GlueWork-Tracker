@@ -13,6 +13,8 @@ class GlueWorkType(Enum):
     MENTORING = 3
     DOCUMENTATION = 4
     COMMUNITY_MANAGMENT = 5
+    LICENSE = 6
+    REPORTING = 7
 
     def get_label(self):
         labels = {
@@ -22,7 +24,8 @@ class GlueWorkType(Enum):
             GlueWorkType.CODE_REVIEW: "Code Review",
             GlueWorkType.MENTORING: "Mentoring and Support",
             GlueWorkType.DOCUMENTATION: "Documentation",
-            GlueWorkType.COMMUNITY_MANAGMENT: "Community Managment"
+            GlueWorkType.COMMUNITY_MANAGMENT: "Community Managment",
+            GlueWorkType.REPORTING: "Bug and Issue Reporting"
         }
         return labels[self]
 

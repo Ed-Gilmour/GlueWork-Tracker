@@ -52,9 +52,13 @@ class WorkAggregator():
         for glue_work_type in GlueWorkType:
             total_count = self.get_glue_work_contribution_count(glue_work_type)
             report_str += f"\n## {glue_work_type.get_label()} ##"
-            for author, count in self.get_top_contributors(glue_work_type).items():
-                percent = (count / total_count) * 100
-                report_str += f"\n- {author}: {percent:.2f}%"
+            items = self.get_top_contributors(glue_work_type).items()
+            if len(items) == 0:
+                report_str += f"\nNone"
+            else:
+                for author, count in items:
+                    percent = (count / total_count) * 100
+                    report_str += f"\n- {author}: {percent:.2f}%"
         return report_str
 
     def output_work(self):

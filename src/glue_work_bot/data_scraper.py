@@ -256,8 +256,10 @@ class GitHubScraper:
             return None
         return response.json()
 
-    def get_documentation_authors(self, commits):
-        authors = []
+    def get_documentation_license_authors(self, commits):
+        doc_authors = []
+        lic_authors = []
+        lic_patterns = ("license", "copying", "unlicense", "notice")
         for commit in commits:
             sha = commit["sha"]
             details = self.get_commit_details(sha)
@@ -265,8 +267,10 @@ class GitHubScraper:
                 continue
             for f in details["files"]:
                 if f["filename"].endswith(".md"):
-                    authors.append(commit["author"])
-        return authors
+                    doc_authors.append(commit["author"])
+                elif any(f["filename"].lower().startswith(p) for p in lic_patterns):
+                    lic_authors.append(commit["author"])
+        return (doc_authors, lic_authors)
 
     def scrape_github_data(self):
         issues = self.get_requests_updated_since(item_type="issues")
@@ -275,7 +279,9 @@ class GitHubScraper:
         pull_request_reviews = self.get_all_pull_request_reviews(urls=pull_requests_urls)
         commits = self.get_all_commits()
         comments = self.get_all_comments(urls=pull_requests_urls)
-        documentation_authors = self.get_documentation_authors(commits=commits)
+        lic_doc_authors = self.get_documentation_license_authors(commits=commits)
+        doc_authors = lic_doc_authors[0]
+        lic_authors = lic_doc_authors[1]
         data = {
             "issues": [
                 {
@@ -313,10 +319,16 @@ class GitHubScraper:
                 } for comment in comments
                 if self.is_user_valid(comment["user"])
             ],
-            "documentation_changes": [
+            "documentation": [
                 {
                     "author": author["login"]
-                } for author in documentation_authors
+                } for author in doc_authors
+                if self.is_user_valid(author)
+            ],
+            "license": [
+                {
+                    "author": author["login"]
+                } for author in lic_authors
                 if self.is_user_valid(author)
             ]
         }

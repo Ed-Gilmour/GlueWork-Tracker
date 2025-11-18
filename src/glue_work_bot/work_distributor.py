@@ -48,8 +48,14 @@ class WorkDistributor:
         for i in range(len(github_data["reviews"])):
             review = github_data["reviews"][i]
             self.aggregator.add_work(review["author"], GlueWorkType.CODE_REVIEW)
-        for i in range(len(github_data["documentation_changes"])):
-            documentation_change = github_data["documentation_changes"][i]
-            self.aggregator.add_work(documentation_change["author"], GlueWorkType.DOCUMENTATION)
+        for i in range(len(github_data["documentation"])):
+            documentation = github_data["documentation"][i]
+            self.aggregator.add_work(documentation["author"], GlueWorkType.DOCUMENTATION)
+        for i in range(len(github_data["license"])):
+            license = github_data["license"][i]
+            self.aggregator.add_work(license["author"], GlueWorkType.LICENSE)
+        for i in range(len(github_data["issues"])):
+            issue = github_data["issues"][i]
+            self.aggregator.add_work(issue["author"], GlueWorkType.REPORTING)
 
         self.aggregator.output_work()
