@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from sentence_bert_vectorizer import VectorIndexer
-from google import genai
+from openai import OpenAI
 from enum import Enum
 import re
 import os
@@ -30,18 +30,50 @@ class GlueWorkType(Enum):
         return labels[self]
 
 class ClassifierAgent:
+    SHORT_TEXT_MIN_WORDS = 3
+    OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+
     def __init__(self, aggregator):
         load_dotenv()
         self.aggregator = aggregator
-        self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        self.client = OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
 
-    def classify_data(self, prompt):
-        return self.get_classification_from_response(
-            response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt
-            ).text
+    def clean(self, text):
+        text = self.strip_quoted_lines(text)
+        text = self.strip_templates(text)
+        return text.strip()
+
+    def strip_quoted_lines(self, text):
+        return "\n".join(
+            line for line in text.splitlines()
+            if not line.strip().startswith(">")
         )
+
+    def strip_templates(self, text):
+        text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+        text = re.sub(r"\[!\[.*?\)\]", "", text)
+        text = re.sub(r"\[x\]|\[ \]", "", text)
+        return text
+
+    def rule_based_short_text(self, text):
+        words = text.split()
+        return (len(words) < self.SHORT_TEXT_MIN_WORDS)
+
+    def classify_data(self, prompts, system_msg):
+        for prompt in prompts:
+            r = self.client.chat.completions.create(
+                model=self.OPENAI_MODEL,
+                messages=[
+                    {"role": "system", "content": system_msg},
+                    {"role": "user", "content": prompt},
+                ],
+                max_completion_tokens=10,
+            )
+            classification = self.get_classification_from_response(r.choices[0].message.content or "-1")
+
+            if (classification != -1):
+                return classification
+        return -1
 
     def get_classification_from_response(self, response):
         match = re.search(r"-?\d+", response)
@@ -55,52 +87,110 @@ class ClassifierAgent:
             return GlueWorkType.UNKNOWN
 
 class CodeAgent(ClassifierAgent):
-    def get_issue_prompt(self, issue):
-        return f"""
-Classify the following GitHub issue as:
--1 = Unknown
+    MAINTENANCE_REGEX = re.compile(
+        r"(fix|resolves|regression|deflake|flaky|timeout|backport|revert|"
+        r"migrate|deprecate|refactor|remove dead code|cve|security|bump|"
+        r"upgrade|pin|ci|build|tests?)",
+        re.IGNORECASE
+    )
+
+    TECH_PATTERN = re.compile(
+        r"(PR\s?#?\d+|issue\s?#?\d+|\b\d+\.\d+\.\d+\b|\bCI\b|\bunit tests?\b)",
+        re.IGNORECASE
+    )
+
+    def rule_based_maintenance(self, text):
+        if self.MAINTENANCE_REGEX.search(text) and self.TECH_PATTERN.search(text):
+            return True
+        return False
+
+    MAINTENANCE_SYSTEM_MSG = """
+You are a GitHub maintenance-classifier.
+
+Label each comment or PR text strictly as:
 0 = Maintenance
-1 = Quality Assurance
-If you are unable to classify into any of those given categories classify as -1.
+-1 = Not Maintenance
 
-Issue Title:
-{issue["title"]}
+Maintenance includes:
+- bug fixes
+- regressions
+- deflakes
+- CI/build fixes
+- dependency bumps
+- refactoring that improves maintainability
+- security fixes
+- code cleanup
 
-Issue Body:
-{issue["body"]}
+Not maintenance includes:
+- new features
+- design discussions
+- user questions
+- general conversation
+- unclear/ambiguous text
 
-Answer with only the number, no words, no explanation.
+You must answer ONLY “0” or “-1”.
 """
 
-    def get_pull_request_prompt(self, pull_request):
-        return f"""
-Classify the following GitHub pull request as:
--1 = Unknown
-0 = Maintenance
-1 = Quality Assurance
-If you are unable to classify into any of those given categories classify as -1.
+    MAINTENANCE_FEWSHOT_EXAMPLES = """
+Example:
+Text: "Fix timeout regression in CI"
+Label: 0
 
-Pull Request Title:
-{pull_request["title"]}
+Example:
+Text: "Add new gameplay feature"
+Label: -1
 
-Pull Request Body:
-{pull_request["body"]}
+Example:
+Text: "Bump dependency from 2.3.1 to 2.3.2"
+Label: 0
 
-Answer with only the number, no words, no explanation.
+Example:
+Text: "Thanks for the contribution!"
+Label: -1
 """
 
-    def get_commit_prompt(self, commit):
+    def classify_code_text(self, raw_text):
+        cleaned = self.clean(raw_text)
+
+        # RULE 1 — short text
+        if self.rule_based_short_text(cleaned):
+            return GlueWorkType.UNKNOWN
+
+        # RULE 2 — strong maintenance regex
+        if self.rule_based_maintenance(cleaned):
+            return GlueWorkType.MAINTENANCE
+
+        # LLM classification
+        return self.classify_data(self.get_code_prompts(cleaned), self.MAINTENANCE_SYSTEM_MSG)
+
+    def get_code_prompts(self, text):
+        prompts = []
+        prompts.append(self.get_maintenance_prompt(text))
+        prompts.append(self.get_quality_assurance_prompt(text))
+        return prompts
+
+    def get_maintenance_prompt(self, text):
         return f"""
-Classify the following GitHub commit as:
+{self.MAINTENANCE_SYSTEM_MSG}
+
+{self.MAINTENANCE_FEWSHOT_EXAMPLES}
+
+Text to classify:
+{text}
+
+Answer with 0 or -1 only.
+"""
+
+    def get_quality_assurance_prompt(self, text):
+        return f"""
+Classify the following text as:
 -1 = Unknown
-0 = Maintenance
 1 = Quality Assurance
-If you are unable to classify into any of those given categories classify as -1.
 
-Commit Message:
-{commit["message"]}
+Text to classify:
+{text}
 
-Answer with only the number, no words, no explanation.
+Answer with 0 or -1 only.
 """
 
 class MentoringAgent(ClassifierAgent):
