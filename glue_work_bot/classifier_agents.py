@@ -36,7 +36,7 @@ class ClassifierAgent:
     def __init__(self, aggregator):
         load_dotenv()
         self.aggregator = aggregator
-        self.client = OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
+        self.client = OpenAI(api_key = os.getenv("OPENAI_KEY"))
 
     def clean(self, text):
         text = self.strip_quoted_lines(text)

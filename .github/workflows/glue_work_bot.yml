@@ -7,7 +7,7 @@ on:
         required: true
         type: string
     secrets:
-      GEMINI_API_KEY:
+      OPENAI_KEY:
         required: true
 
 jobs:
@@ -55,7 +55,7 @@ jobs:
       - name: Run Glue Work Bot
         working-directory: gluework_repo
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
         run: python glue_work_bot/main.py --output-dir "../caller_repo/glue_work_bot/glue_work_bot_results"
 
       - name: Configure Git
