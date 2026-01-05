@@ -38,9 +38,9 @@ jobs:
         with:
           path: |
             ~/.cache/pip
-          key: ${{ runner.os }}-deps-v2-${{ hashFiles('gluework_repo/requirements.txt') }}
+          key: ${{ runner.os }}-deps-${{ hashFiles('gluework_repo/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-deps-v2-
+            ${{ runner.os }}-deps-
 
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
