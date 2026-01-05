@@ -22,6 +22,7 @@ class GlueWorkType(Enum):
             GlueWorkType.MENTORING: "Mentoring and Support",
             GlueWorkType.DOCUMENTATION: "Documentation",
             GlueWorkType.COMMUNITY_MANAGMENT: "Community Managment",
+            GlueWorkType.LICENSE: "License",
             GlueWorkType.REPORTING: "Bug and Issue Reporting"
         }
         return labels[self]
