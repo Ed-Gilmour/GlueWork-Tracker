@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from sentence_bert_vectorizer import VectorIndexer
 from openai import OpenAI
 from enum import Enum
 import re
