@@ -196,8 +196,6 @@ Answer with 0 or -1 only.
 class MentoringAgent(ClassifierAgent):
     def __init__(self, aggregator):
         super().__init__(aggregator)
-        self.vectorizer = VectorIndexer("mentoring")
-        self.vectorizer.load_classification_data()
 
     def get_comment_prompt(self, comment):
         return f"""
@@ -209,23 +207,8 @@ If you are unable to classify into any of those given categories classify as -1.
 Comment Body:
 {comment["body"]}
 
-Use the following examples to help classify the comment:
-{self.get_rag_data(comment["body"])}
-
 Answer with only the number, no words, no explanation.
 """
-
-    def get_rag_data(self, query):
-        responses = self.vectorizer.search(query, k=3)
-        data = ""
-        for text, distance in responses:
-            classification = self.vectorizer.data[text]
-            if classification == "Y":
-                classification = "Yes"
-            else:
-                classification = "No"
-            data += f"\nComment:\n{text}\nClassification for mentoring and support: {classification}\n"
-        return data
 
 class CommunityAgent(ClassifierAgent):
     def __init__(self, aggregator):
