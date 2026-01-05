@@ -34,7 +34,7 @@ class WorkDistributor:
             comment = github_data["comments"][i]
             classification = GlueWorkType.UNKNOWN
             if i < 3:
-                classification = mentoring_agent.classify_data(mentoring_agent.get_comment_prompt(comment))
+                classification = mentoring_agent.classify_mentoring_text(comment["body"])
             self.aggregator.add_work(comment["author"], classification)
 
         community_agent = CommunityAgent(self.aggregator)
@@ -42,7 +42,7 @@ class WorkDistributor:
             post = stackexchange_data["replies"][i]
             classification = GlueWorkType.UNKNOWN
             if i < 3:
-                classification = community_agent.classify_data(community_agent.get_community_managment_prompt(post))
+                classification = community_agent.classify_community_text(post["body"])
             self.aggregator.add_work(post["author"], classification)
 
         for i in range(len(github_data["reviews"])):

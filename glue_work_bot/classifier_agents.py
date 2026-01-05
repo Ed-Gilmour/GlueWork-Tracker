@@ -7,7 +7,6 @@ import os
 class GlueWorkType(Enum):
     UNKNOWN = -1
     MAINTENANCE = 0
-    QUALITY_ASSURANCE = 1
     CODE_REVIEW = 2
     MENTORING = 3
     DOCUMENTATION = 4
@@ -19,7 +18,6 @@ class GlueWorkType(Enum):
         labels = {
             GlueWorkType.UNKNOWN: "Unknown",
             GlueWorkType.MAINTENANCE: "Maintenance",
-            GlueWorkType.QUALITY_ASSURANCE: "Quality Assurance",
             GlueWorkType.CODE_REVIEW: "Code Review",
             GlueWorkType.MENTORING: "Mentoring and Support",
             GlueWorkType.DOCUMENTATION: "Documentation",
@@ -160,18 +158,10 @@ Label: -1
             return GlueWorkType.MAINTENANCE
 
         # LLM classification
-        return self.classify_data(self.get_code_prompts(cleaned), self.MAINTENANCE_SYSTEM_MSG)
-
-    def get_code_prompts(self, text):
-        prompts = []
-        prompts.append(self.get_maintenance_prompt(text))
-        prompts.append(self.get_quality_assurance_prompt(text))
-        return prompts
+        return self.classify_data(self.get_maintenance_prompt(cleaned), self.MAINTENANCE_SYSTEM_MSG)
 
     def get_maintenance_prompt(self, text):
         return f"""
-{self.MAINTENANCE_SYSTEM_MSG}
-
 {self.MAINTENANCE_FEWSHOT_EXAMPLES}
 
 Text to classify:
@@ -180,48 +170,46 @@ Text to classify:
 Answer with 0 or -1 only.
 """
 
-    def get_quality_assurance_prompt(self, text):
-        return f"""
-Classify the following text as:
--1 = Unknown
-1 = Quality Assurance
+class MentoringAgent(ClassifierAgent):
+    MENTORING_SYSTEM_MSG = """
+You are a mentoring-classifier.
 
-Text to classify:
-{text}
-
-Answer with 0 or -1 only.
+Label each comment strictly as:
+3 = Mentoring
+-1 = Not Mentoring
 """
 
-class MentoringAgent(ClassifierAgent):
     def __init__(self, aggregator):
         super().__init__(aggregator)
 
-    def get_comment_prompt(self, comment):
+    def classify_mentoring_text(self, raw_text):
+        cleaned = self.clean(raw_text)
+        return self.classify_data(self.get_comment_prompt(cleaned), self.MENTORING_SYSTEM_MSG)
+
+    def get_comment_prompt(self, text):
         return f"""
-Classify the following GitHub comment as:
--1 = Unknown
-3 = Mentoring and Support
-If you are unable to classify into any of those given categories classify as -1.
-
 Comment Body:
-{comment["body"]}
-
-Answer with only the number, no words, no explanation.
+{text}
 """
 
 class CommunityAgent(ClassifierAgent):
+    COMMUNITY_SYSTEM_MSG = """
+You are a community-management-classifier.
+
+Label each reply text strictly as:
+5 = Community Management
+-1 = Not Community Management
+"""
+
     def __init__(self, aggregator):
         super().__init__(aggregator)
 
-    def get_community_managment_prompt(self, post):
+    def classify_community_text(self, raw_text):
+        cleaned = self.clean(raw_text)
+        return self.classify_data(self.get_community_managment_prompt(cleaned), self.COMMUNITY_SYSTEM_MSG)
+
+    def get_community_managment_prompt(self, text):
         return f"""
-Classify the following StackExchange post as:
--1 = Unknown
-5 = Community Managment
-If you are unable to classify into any of those given categories classify as -1.
-
-Post Body:
-{post["body"]}
-
-Answer with only the number, no words, no explanation.
+Reply Body:
+{text}
 """
