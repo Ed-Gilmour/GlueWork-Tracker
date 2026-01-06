@@ -160,7 +160,7 @@ You must answer ONLY “0” or “-1”.
         ("Related to #173838", -1),
     ]
 
-    def fewshot_block(examples):
+    def fewshot_block(self, examples):
         return "\n\n".join([f"Comment: {t}\nLabel: {y}" for t, y in examples])
 
     def classify_code_text(self, raw_text):
@@ -223,7 +223,7 @@ Before classification:
         ("I hope it's okay to just re-apply this commit onto upstream master using cherry-pick and force-push the branch.", -1),
     ]
 
-    def fewshot_block(examples):
+    def fewshot_block(self, examples):
         return "\n\n".join([f"Comment: {t}\nLabel: {y}" for t, y in examples])
 
     def classify_mentoring_text(self, raw_text):
