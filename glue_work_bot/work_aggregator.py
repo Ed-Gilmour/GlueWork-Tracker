@@ -51,7 +51,7 @@ class WorkAggregator():
         report_str = f"[{current_utc_datetime}]\n\nData from past {DataScraper.RETRIEVED_DAYS} days.\n# Glue Work Report #"
         for glue_work_type in GlueWorkType:
 
-            if glue_work_type == GlueWorkType.UNKNOWN:
+            if glue_work_type == GlueWorkType.UNKNOWN or glue_work_type == GlueWorkType.COMMUNITY_MANAGMENT:
                 continue
 
             total_count = self.get_glue_work_contribution_count(glue_work_type)
