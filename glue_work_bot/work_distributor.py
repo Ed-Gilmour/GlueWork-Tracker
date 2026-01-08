@@ -8,7 +8,6 @@ class WorkDistributor:
 
     def distribute_work(self):
         github_data = self.data["github"]
-        stackexchange_data = self.data["stackexchange"]
         code_agent = CodeAgent(self.aggregator)
         for i in range(len(github_data["issues"])):
             issue = github_data["issues"][i]
