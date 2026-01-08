@@ -50,6 +50,10 @@ class WorkAggregator():
         current_utc_datetime = datetime.now(timezone.utc)
         report_str = f"[{current_utc_datetime}]\n\nData from past {DataScraper.RETRIEVED_DAYS} days.\n# Glue Work Report #"
         for glue_work_type in GlueWorkType:
+
+            if glue_work_type == GlueWorkType.UNKNOWN:
+                continue
+
             total_count = self.get_glue_work_contribution_count(glue_work_type)
             report_str += f"\n## {glue_work_type.get_label()} ##"
             items = self.get_top_contributors(glue_work_type).items()

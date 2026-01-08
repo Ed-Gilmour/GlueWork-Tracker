@@ -245,11 +245,7 @@ Comment to classify:
 
 class CommunityAgent(ClassifierAgent):
     COMMUNITY_SYSTEM_MSG = """
-You are a community-management-classifier.
 
-Label each reply text strictly as:
-5 = Community Management
--1 = Not Community Management
 """
 
     def __init__(self, aggregator):
@@ -257,10 +253,14 @@ Label each reply text strictly as:
 
     def classify_community_text(self, raw_text):
         cleaned = self.clean(raw_text)
+
+        if self.rule_based_short_text(cleaned):
+            return GlueWorkType.UNKNOWN
+
         return self.classify_data(self.get_community_managment_prompt(cleaned), self.COMMUNITY_SYSTEM_MSG, GlueWorkType.COMMUNITY_MANAGMENT)
 
     def get_community_managment_prompt(self, text):
         return f"""
-Reply Body:
+Comment to classify:
 {text}
 """

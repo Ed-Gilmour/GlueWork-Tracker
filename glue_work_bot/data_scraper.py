@@ -7,7 +7,7 @@ import json
 import argparse
 
 class DataScraper:
-    RETRIEVED_DAYS = 1
+    RETRIEVED_DAYS = 30
 
     def __init__(self):
         parser = argparse.ArgumentParser()
@@ -75,7 +75,6 @@ class StackExchangeScraper:
         return [q["question_id"] for q in data.get("items", [])]
 
     def fetch_answers_for_questions(self, question_ids):
-        """Fetch answers for a list of question IDs."""
         if not question_ids:
             return []
 
