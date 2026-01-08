@@ -45,11 +45,13 @@ class DataScraper:
         self.write_data(self.github_scraper.scrape_github_data(), "github")
 
 class StackExchangeScraper:
+    COMMUNITY_TAG = "Example"
+
     def __init__(self):
         load_dotenv()
         self.base_url = "https://api.stackexchange.com/2.3"
         self.site = "stackoverflow"
-        self.tag = "flutter"
+        self.tag = self.COMMUNITY_TAG
         self.retrieved_days = DataScraper.RETRIEVED_DAYS
 
     def fetch_recent_questions(self):
@@ -343,4 +345,3 @@ class ConfigScraper:
 if __name__ == "__main__":
     data_scraper = DataScraper()
     data_scraper.scrape_github_data()
-    data_scraper.scrape_stackexchange_data()
