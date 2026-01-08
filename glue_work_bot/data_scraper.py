@@ -125,7 +125,6 @@ class GitHubScraper:
         load_dotenv()
         self.github_token = os.getenv("GITHUB_TOKEN")
         self.repo = "flutter/flutter"
-        print(os.environ["GITHUB_REPOSITORY"], flush=True)
         self.base_url = f"https://api.github.com/repos/{self.repo}"
         self.headers = {
             "Authorization": f"Bearer {self.github_token}",
