@@ -164,6 +164,9 @@ You must answer ONLY “0” or “-1”.
         return "\n\n".join([f"Comment: {t}\nLabel: {y}" for t, y in examples])
 
     def classify_code_text(self, raw_text):
+        if raw_text == None:
+            return GlueWorkType.UNKNOWN
+
         cleaned = self.clean(raw_text)
 
         # RULE 1 — short text
@@ -227,6 +230,9 @@ Before classification:
         return "\n\n".join([f"Comment: {t}\nLabel: {y}" for t, y in examples])
 
     def classify_mentoring_text(self, raw_text):
+        if raw_text == None:
+            return GlueWorkType.UNKNOWN
+
         cleaned = self.clean(raw_text)
 
         if self.rule_based_short_text(cleaned):
@@ -252,6 +258,9 @@ class CommunityAgent(ClassifierAgent):
         super().__init__(aggregator)
 
     def classify_community_text(self, raw_text):
+        if raw_text == None:
+            return GlueWorkType.UNKNOWN
+
         cleaned = self.clean(raw_text)
 
         if self.rule_based_short_text(cleaned):

@@ -18,7 +18,6 @@ class DataScraper:
         config_handler.load_config()
         self.config_scraper = ConfigScraper(config_handler)
         self.github_scraper = GitHubScraper(config_handler.get_excluded_users())
-        self.stackexchange_scraper = StackExchangeScraper()
 
     def write_data(self, data, key):
         os.makedirs("temp", exist_ok=True)
