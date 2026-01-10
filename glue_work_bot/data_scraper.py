@@ -290,9 +290,9 @@ class GitHubScraper:
             ],
             "reviews": [
                 {
-                    "author": review["user"]["login"]
+                    "author": review["login"]
                 } for review in pull_request_reviews
-                if self.is_user_valid(review["user"])
+                if self.is_user_valid(review)
             ],
             "comments": [
                 {
