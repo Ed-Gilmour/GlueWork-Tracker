@@ -124,7 +124,7 @@ class GitHubScraper:
     def __init__(self, excluded_users=[], retrieved_days=DataScraper.RETRIEVED_DAYS):
         load_dotenv()
         self.github_token = os.getenv("GITHUB_TOKEN")
-        self.repo = "flutter/flutter"
+        self.repo = "flutter/flutter" # TODO: os.environ["GITHUB_REPOSITORY"]
         self.base_url = f"https://api.github.com/repos/{self.repo}"
         self.headers = {
             "Authorization": f"Bearer {self.github_token}",
@@ -174,56 +174,6 @@ class GitHubScraper:
 
         return self.github_paginate(url=url, params=params)
 
-    def get_all_branches(self):
-        url = f"{self.base_url}/branches"
-        return self.github_paginate(url)
-
-    def get_all_commits(self):
-        branches = self.get_all_branches()
-        commits = []
-        used_shas = set()
-        for branch in branches:
-            branch_commits = self.get_requests_updated_since(item_type="commits", branch=branch["name"])
-            for commit in branch_commits:
-                if commit["sha"] in used_shas:
-                    continue
-                else:
-                    used_shas.add(commit["sha"])
-                    commits.append(commit)
-        return commits
-
-    def get_all_pull_request_urls(self, issues):
-        urls = []
-        for issue in issues:
-            if "pull_request" in issue:
-                urls.append(issue["pull_request"]["url"])
-        return urls
-
-    def get_all_pull_requests(self, urls):
-        pull_requests = []
-        session = requests.Session()
-        for url in urls:
-            response = session.get(url, headers=self.headers)
-            if response.status_code != 200:
-                print(f"Skipping {url} (status {response.status_code})", flush=True)
-                continue
-            data = response.json()
-            pull_requests.append(data)
-        return pull_requests
-
-    def get_all_pull_request_reviews(self, urls):
-        reviews = []
-        session = requests.Session()
-        for url in urls:
-            response = session.get(url + "/reviews", headers=self.headers)
-            if response.status_code != 200:
-                print(f"Skipping {url} (status {response.status_code})", flush=True)
-                continue
-            data = response.json()
-            for review in data:
-                reviews.append(review)
-        return reviews
-
     def get_issue_comments(self, issue_number):
         url = f"{self.base_url}/issues/{issue_number}/comments"
         response = requests.get(url, headers=self.headers)
@@ -231,22 +181,6 @@ class GitHubScraper:
             print(f"Skipping {url} (status {response.status_code})", flush=True)
             return []
         return response.json()
-
-    def get_pull_request_comments(self, pull_number):
-        url = f"{self.base_url}/pulls/{pull_number}/comments"
-        response = requests.get(url, headers=self.headers)
-        if response.status_code != 200:
-            print(f"Skipping {url} (status {response.status_code})", flush=True)
-            return []
-        return response.json()
-
-    def get_all_comments(self, urls):
-        comments = []
-        for url in urls:
-            pr_number = int(url.split("/")[-1])
-            comments.extend(self.get_issue_comments(pr_number))
-            comments.extend(self.get_pull_request_comments(pr_number))
-        return comments
 
     def get_commit_details(self, sha):
         url = f"{self.base_url}/commits/{sha}"
@@ -259,26 +193,74 @@ class GitHubScraper:
     def get_documentation_license_authors(self, commits):
         doc_authors = []
         lic_authors = []
-        lic_patterns = ("license", "copying", "unlicense", "notice")
+
+        lic_keywords = ("license", "copying", "unlicense", "notice")
+        doc_keywords = (".md", "doc", "docs", "readme", "documentation")
+
         for commit in commits:
-            sha = commit["sha"]
-            details = self.get_commit_details(sha)
-            if not details or "files" not in details:
+            message = commit["commit"]["message"].lower()
+            author = commit.get("author")
+
+            if not author:
                 continue
-            for f in details["files"]:
-                if f["filename"].endswith(".md"):
-                    doc_authors.append(commit["author"])
-                elif any(f["filename"].lower().startswith(p) for p in lic_patterns):
-                    lic_authors.append(commit["author"])
+
+            if any(k in message for k in doc_keywords):
+                doc_authors.append(author)
+            elif any(k in message for k in lic_keywords):
+                lic_authors.append(author)
+
         return (doc_authors, lic_authors)
+
+    def get_issue_comments(self, issues):
+        comments = []
+
+        for issue in issues:
+            if issue.get("comments", 0) == 0:
+                continue
+
+            comments.extend(
+                self.github_paginate(issue["comments_url"])
+            )
+
+        return [
+            c for c in comments
+            if self.is_user_valid(c["user"])
+        ]
+
+    def get_pull_request_reviews(self, issues):
+        reviews = []
+
+        for issue in issues:
+            if "pull_request" not in issue:
+                continue
+
+            if issue.get("comments", 0) == 0:
+                continue
+
+            pr_number = issue["number"]
+            url = f"{self.base_url}/pulls/{pr_number}/reviews"
+
+            response = requests.get(url, headers=self.headers)
+            if response.status_code != 200:
+                print(f"Skipping {url} (status {response.status_code})", flush=True)
+                continue
+
+            for review in response.json():
+                user = review.get("user")
+                if user and self.is_user_valid(user):
+                    reviews.append(user)
+
+        return reviews
 
     def scrape_github_data(self):
         issues = self.get_requests_updated_since(item_type="issues")
-        pull_requests_urls = self.get_all_pull_request_urls(issues=issues)
-        pull_requests = self.get_all_pull_requests(urls=pull_requests_urls)
-        pull_request_reviews = self.get_all_pull_request_reviews(urls=pull_requests_urls)
-        commits = self.get_all_commits()
-        comments = self.get_all_comments(urls=pull_requests_urls)
+        pull_requests = [
+            issue for issue in issues
+            if "pull_request" in issue
+        ]
+        pull_request_reviews = self.get_pull_request_reviews(issues=issues)
+        commits = self.get_requests_updated_since(item_type="commits")
+        comments = self.get_issue_comments(issues=issues)
         lic_doc_authors = self.get_documentation_license_authors(commits=commits)
         doc_authors = lic_doc_authors[0]
         lic_authors = lic_doc_authors[1]
