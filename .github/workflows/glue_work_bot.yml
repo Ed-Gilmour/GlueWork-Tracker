@@ -3,7 +3,7 @@ name: Glue Work Tracker Bot
 on:
   workflow_call:
     inputs:
-      config_file:
+      config-file:
         required: true
         type: string
     secrets:
