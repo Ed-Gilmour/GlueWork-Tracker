@@ -10,3 +10,5 @@ jobs:
     uses: Ed-Gilmour/GlueWork-Tracker/.github/workflows/glue_work_bot.yml@main
     with:
       config_file: 'glue_work_bot/glue_work_bot_config.yml'
+    secrets:
+      OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
