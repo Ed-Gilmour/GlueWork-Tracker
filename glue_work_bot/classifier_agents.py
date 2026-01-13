@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import OpenAI, RateLimitError, APIError, APITimeoutError
 from enum import Enum
 import re
 import os
+import time
 
 class GlueWorkType(Enum):
     UNKNOWN = -1
@@ -57,21 +58,29 @@ class ClassifierAgent:
         words = text.split()
         return (len(words) < self.SHORT_TEXT_MIN_WORDS)
 
-    def classify_data(self, prompts, system_msg, def_class):
-        for prompt in prompts:
-            r = self.client.chat.completions.create(
-                model=self.OPENAI_MODEL,
-                messages=[
-                    {"role": "system", "content": system_msg},
-                    {"role": "user", "content": prompt},
-                ],
-                max_completion_tokens=10,
-            )
-            classification = self.get_classification_from_response(r.choices[0].message.content or "-1", def_class)
+    def classify_data(self, prompt, system_msg, def_class, delay=100):
+        while True:
+            try:
+                r = self.client.chat.completions.create(
+                    model=self.OPENAI_MODEL,
+                    messages=[
+                        {"role": "system", "content": system_msg},
+                        {"role": "user", "content": prompt},
+                    ],
+                    max_completion_tokens=10,
+                )
 
-            if (classification != -1):
+                content = r.choices[0].message.content or "-1"
+                classification = self.get_classification_from_response(content, def_class)
                 return classification
-        return -1
+
+            except RateLimitError:
+                print(f"OpenAI rate limited. Sleeping {delay}s before retry...", flush=True)
+                time.sleep(delay)
+
+            except (APITimeoutError, APIError) as e:
+                print(f"OpenAI transient error ({type(e).__name__}). Sleeping {delay}s before retry...", flush=True)
+                time.sleep(delay)
 
     def get_classification_from_response(self, response, def_class):
         match = re.search(r"-?\d+", response)

@@ -5,6 +5,7 @@ import os
 import requests
 import json
 import argparse
+import time
 
 class DataScraper:
     RETRIEVED_DAYS = 30
@@ -133,19 +134,50 @@ class GitHubScraper:
         self.excluded_users = excluded_users
         self.retrieved_days = retrieved_days
 
+    def github_request(self, session, method, url, **kwargs):
+        while True:
+            response = session.request(
+                method,
+                url,
+                headers=self.headers,
+                **kwargs
+            )
+
+            if response.status_code == 200:
+                return response
+
+            if response.status_code == 403:
+                remaining = response.headers.get("X-RateLimit-Remaining")
+                reset = response.headers.get("X-RateLimit-Reset")
+
+                if remaining == "0" and reset:
+                    reset_time = int(reset)
+                    sleep_for = max(reset_time - int(time.time()), 0) + 1
+                    print(f"GitHub rate limited. Sleeping {sleep_for}s...", flush=True)
+                    time.sleep(sleep_for)
+                    continue
+
+            print(f"GitHub request failed: {url} ({response.status_code})", flush=True)
+            return None
+
     def github_paginate(self, url, params=None):
         results = []
         session = requests.Session()
-
         page = 1
+
         while True:
             query = params.copy() if params else {}
             query["per_page"] = 100
             query["page"] = page
 
-            response = session.get(url, params=query, headers=self.headers)
-            if response.status_code != 200:
-                print(f"Skipping {url} (status {response.status_code})", flush=True)
+            response = self.github_request(
+                session,
+                "GET",
+                url,
+                params=query
+            )
+
+            if response is None:
                 break
 
             data = response.json()
@@ -174,21 +206,29 @@ class GitHubScraper:
 
         return self.github_paginate(url=url, params=params)
 
-    def get_issue_comments(self, issue_number):
-        url = f"{self.base_url}/issues/{issue_number}/comments"
-        response = requests.get(url, headers=self.headers)
-        if response.status_code != 200:
-            print(f"Skipping {url} (status {response.status_code})", flush=True)
-            return []
-        return response.json()
+    def get_issue_comments(self, issues):
+        comments = []
+        session = requests.Session()
 
-    def get_commit_details(self, sha):
-        url = f"{self.base_url}/commits/{sha}"
-        response = requests.get(url, headers=self.headers)
-        if response.status_code != 200:
-            print(f"Skipping {url} (status {response.status_code})", flush=True)
-            return None
-        return response.json()
+        for issue in issues:
+            if issue.get("comments", 0) == 0:
+                continue
+
+            response = self.github_request(
+                session,
+                "GET",
+                issue["comments_url"]
+            )
+
+            if response is None:
+                continue
+
+            comments.extend(response.json())
+
+        return [
+            c for c in comments
+            if self.is_user_valid(c["user"])
+        ]
 
     def get_documentation_license_authors(self, commits):
         doc_authors = []
@@ -229,6 +269,7 @@ class GitHubScraper:
 
     def get_pull_request_reviews(self, issues):
         reviews = []
+        session = requests.Session()
 
         for issue in issues:
             if "pull_request" not in issue:
@@ -237,12 +278,10 @@ class GitHubScraper:
             if issue.get("comments", 0) == 0:
                 continue
 
-            pr_number = issue["number"]
-            url = f"{self.base_url}/pulls/{pr_number}/reviews"
+            url = f"{self.base_url}/pulls/{issue['number']}/reviews"
 
-            response = requests.get(url, headers=self.headers)
-            if response.status_code != 200:
-                print(f"Skipping {url} (status {response.status_code})", flush=True)
+            response = self.github_request(session, "GET", url)
+            if response is None:
                 continue
 
             for review in response.json():
