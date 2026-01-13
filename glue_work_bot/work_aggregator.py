@@ -2,17 +2,13 @@ from output_handler import OutputHandler
 from config_handler import ConfigHandler
 from classifier_agents import GlueWorkType
 from datetime import datetime, timezone
-import argparse
 
 class WorkAggregator():
-    def __init__(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--config-file', required=True)
-        args = parser.parse_args()
-        config_file = args.config_file
+    def __init__(self, config_file, output_dir):
         config_handler = ConfigHandler(config_file)
         config_handler.load_config()
         self.retrieved_days = config_handler.get_retrieved_days()
+        self.output_dir = output_dir
         self.config_handler = config_handler
         self.authors = {}
 
@@ -76,9 +72,5 @@ class WorkAggregator():
         return report_str
 
     def output_work(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--output-dir', required=True)
-        args = parser.parse_args()
-        output_dir = args.output_dir
-        output_handler = OutputHandler(output_dir, self.get_contributor_list(), self.get_glue_work_report())
+        output_handler = OutputHandler(self.output_dir, self.get_contributor_list(), self.get_glue_work_report())
         output_handler.save_output()

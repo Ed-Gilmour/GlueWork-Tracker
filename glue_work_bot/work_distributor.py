@@ -1,9 +1,16 @@
 from classifier_agents import CodeAgent, MentoringAgent, GlueWorkType
 from work_aggregator import WorkAggregator
+import argparse
 
 class WorkDistributor:
     def __init__(self, data):
-        self.aggregator = WorkAggregator()
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--output-dir', required=True)
+        parser.add_argument('--config-file', required=True)
+        args = parser.parse_args()
+        output_dir = args.output_dir
+        config_file = args.config_file
+        self.aggregator = WorkAggregator(config_file, output_dir)
         self.data = data
 
     def distribute_work(self):
