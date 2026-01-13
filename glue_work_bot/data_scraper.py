@@ -125,7 +125,7 @@ class GitHubScraper:
     def __init__(self, excluded_users=[], retrieved_days=DataScraper.RETRIEVED_DAYS):
         load_dotenv()
         self.github_token = os.getenv("GITHUB_TOKEN")
-        self.repo = "flutter/flutter" # TODO: os.environ["GITHUB_REPOSITORY"]
+        self.repo = os.environ["GITHUB_REPOSITORY"]
         self.base_url = f"https://api.github.com/repos/{self.repo}"
         self.headers = {
             "Authorization": f"Bearer {self.github_token}",
