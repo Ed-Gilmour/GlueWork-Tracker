@@ -4,7 +4,7 @@ from pathlib import Path
 
 class TrainingDataCollector:
     def __init__(self):
-        self.data_scraper = GitHubScraper(retrieved_days=7)
+        self.data_scraper = GitHubScraper()
 
     def collect_issue_data(self, path):
         issues = self.data_scraper.get_requests_updated_since(item_type="issues")

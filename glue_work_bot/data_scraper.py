@@ -8,17 +8,9 @@ import argparse
 import time
 
 class DataScraper:
-    RETRIEVED_DAYS = 30
-
-    def __init__(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--config-file', required=True)
-        args = parser.parse_args()
-        config_file = args.config_file
-        config_handler = ConfigHandler(config_file)
-        config_handler.load_config()
-        self.config_scraper = ConfigScraper(config_handler)
-        self.github_scraper = GitHubScraper(config_handler.get_excluded_users())
+    def __init__(self, config_handler):
+        self.config_handler = config_handler
+        self.github_scraper = GitHubScraper(config_handler)
 
     def write_data(self, data, key):
         os.makedirs("temp", exist_ok=True)
@@ -47,12 +39,13 @@ class DataScraper:
 class StackExchangeScraper:
     COMMUNITY_TAG = "Example"
 
-    def __init__(self):
+    def __init__(self, config_handler):
         load_dotenv()
         self.base_url = "https://api.stackexchange.com/2.3"
         self.site = "stackoverflow"
         self.tag = self.COMMUNITY_TAG
-        self.retrieved_days = DataScraper.RETRIEVED_DAYS
+        self.retrieved_days = config_handler.get_retrieved_days()
+        self.config_handler = config_handler
 
     def fetch_recent_questions(self):
         cutoff = datetime.now(timezone.utc) - timedelta(days=self.retrieved_days)
@@ -122,17 +115,19 @@ class StackExchangeScraper:
         return data
 
 class GitHubScraper:
-    def __init__(self, excluded_users=[], retrieved_days=DataScraper.RETRIEVED_DAYS):
+    def __init__(self, config_handler=None):
         load_dotenv()
         self.github_token = os.getenv("GITHUB_TOKEN")
-        self.repo = "flutter/flutter" # os.environ["GITHUB_REPOSITORY"]
+        repo = config_handler.get_repository()
+        self.repo = os.environ["GITHUB_REPOSITORY"] if repo == "" else repo
         self.base_url = f"https://api.github.com/repos/{self.repo}"
         self.headers = {
             "Authorization": f"Bearer {self.github_token}",
             "Accept": "application/vnd.github.v3+json"
         }
-        self.excluded_users = excluded_users
-        self.retrieved_days = retrieved_days
+        self.excluded_users = config_handler.get_excluded_users()
+        self.retrieved_days = config_handler.get_retrieved_days()
+        self.config_handler = config_handler
 
     def github_request(self, session, method, url, **kwargs):
         while True:
@@ -358,10 +353,12 @@ class GitHubScraper:
     def is_user_valid(self, user):
         return user["login"] is not None and user["login"] not in self.excluded_users and user["type"] != "Bot"
 
-class ConfigScraper:
-    def __init__(self, config_handler):
-        self.config_handler = config_handler
-
 if __name__ == "__main__":
-    data_scraper = DataScraper()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config-file', required=True)
+    args = parser.parse_args()
+    config_file = args.config_file
+    config_handler = ConfigHandler(config_file)
+    config_handler.load_config()
+    data_scraper = DataScraper(config_handler)
     data_scraper.scrape_github_data()

@@ -2,7 +2,7 @@ name: Run Glue Work Tracker Bot
 
 on:
   schedule:
-    - cron: '0 0 1 * *'
+    - cron: '0 0 1 * *' # Adjust to choose when to automatically run.
   workflow_dispatch:
 
 jobs:
