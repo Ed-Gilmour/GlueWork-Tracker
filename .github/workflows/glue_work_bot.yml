@@ -56,10 +56,10 @@ jobs:
         working-directory: gluework_repo
         env:
             OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
-        run: 
-            python glue_work_bot/main.py |
-                --config-file "../caller_repo/glue_work_bot/glue_work_bot_config.yml" \
-                --output-dir "../caller_repo/glue_work_bot/glue_work_bot_results"
+        run: |
+            python glue_work_bot/main.py \
+            --config-file "../caller_repo/glue_work_bot/glue_work_bot_config.yml" \
+            --output-dir "../caller_repo/glue_work_bot/glue_work_bot_results"
 
       - name: Configure Git
         working-directory: caller_repo
