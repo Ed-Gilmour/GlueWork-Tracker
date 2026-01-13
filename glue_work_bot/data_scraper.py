@@ -9,7 +9,7 @@ import time
 
 class DataScraper:
     def __init__(self, config_handler):
-        self.github_scraper = GitHubScraper(config_handler=config_handler)
+        self.github_scraper = GitHubScraper(config_handler)
 
     def write_data(self, data, key):
         os.makedirs("temp", exist_ok=True)

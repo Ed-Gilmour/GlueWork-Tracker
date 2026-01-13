@@ -10,7 +10,8 @@ class ConfigHandler:
             self.config = yaml.safe_load(f)
 
     def get_excluded_users(self):
-        return self.config.get('excluded_users', [])
+        users = self.config.get('excluded_users', [])
+        return users or []
 
     def get_top_count(self):
         return self.config.get('top_count', 10)
@@ -19,4 +20,5 @@ class ConfigHandler:
         return self.config.get('retrieved_days', 30)
 
     def get_repository(self):
-        return self.config.get('repository', "")
+        repo = self.config.get('repository', "")
+        return repo or ""
