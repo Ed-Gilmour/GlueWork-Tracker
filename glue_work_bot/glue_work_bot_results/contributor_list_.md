@@ -1,7 +1,10 @@
-[2026-01-18 20:11:39.528464+00:00]
+[2026-01-18 21:28:21.642751+00:00]
 
 Data from past 7 days.
 # Glue Work Contributor List
+- dopecoder
+- corepuncher
+- Raphael2b3
 - Divith123
 - aaazlkm
 - abikko
@@ -164,7 +167,6 @@ Data from past 7 days.
 - Vedsaga
 - bniladridas
 - lesaff-r
-- Raphael2b3
 - hyiso
 - kirolous-nashaat
 - PurplePolyhedron
@@ -266,7 +268,6 @@ Data from past 7 days.
 - kpltwr
 - dineshrajbhar777
 - Shivamtruein
-- fluttergithubbot
 - minhhoangtn
 - felipebonezi
 - itsniaz
@@ -409,6 +410,8 @@ Data from past 7 days.
 - mbas83
 - Daess
 - SpringSea28
+- MichalDanielDobrzanski
+- MalikSamiAwan
 - danielkiing3
 - darshankawar
 - Mohit8G
