@@ -8,3 +8,4 @@ excluded_users:
 - flutter-pub-roller-bot
 - engine-flutter-autoroll
 - flutteractionsbot
+- fluttergithubbot
