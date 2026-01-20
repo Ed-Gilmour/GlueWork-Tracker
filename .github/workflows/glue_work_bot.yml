@@ -28,11 +28,6 @@ jobs:
           ref: main
           path: gluework_repo
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
-
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
@@ -42,22 +37,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-deps-
 
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+      - uses: ./.github/actions/setup-environment
+        id: runner-context
+        with:
+          install-uv: true
 
       - name: Install dependencies
-        run: pip install -r gluework_repo/requirements.txt
+        working-directory: gluework_repo
+        run: uv sync
 
       - name: Scrape Glue Work Data
         working-directory: gluework_repo
-        run: python glue_work_bot/data_scraper.py --config-file "../caller_repo/glue_work_bot/glue_work_bot_config.yml"
+        run: uv run python src/glue_work_bot/data_scraper.py --config-file "../caller_repo/glue_work_bot/glue_work_bot_config.yml"
 
       - name: Run Glue Work Bot
         working-directory: gluework_repo
         env:
             OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
         run: |
-            python glue_work_bot/main.py \
+            uv run python glue_work_bot/main.py \
             --config-file "../caller_repo/glue_work_bot/glue_work_bot_config.yml" \
             --output-dir "../caller_repo/glue_work_bot/glue_work_bot_results"
 
