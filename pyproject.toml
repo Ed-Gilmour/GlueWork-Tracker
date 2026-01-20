@@ -1,0 +1,62 @@
+[project]
+name = "gluework-tracker"
+version = "0.1.0"
+description = "GitHub bot is for analyzing Glue Work contributions contributors have made in OSS projects."
+readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "numpy>=2.3.2",
+    "pandas>=2.3.2",
+    "python-dotenv>=1.1.1",
+    "PyYAML>=6.0.2",
+    "Requests>=2.32.5",
+    "openai>=2.9.0",
+]
+
+[dependency-groups]
+dev = [
+    "coverage",
+    "pyright",
+    "pytest",
+    "pytest-cov",
+    "pytest-nunit",
+    "setuptools",
+    "ruff",
+    # documentation tooling
+    "mkdocs",
+    "mkdocs-awesome-pages-plugin",
+    "mkdocs-material",
+    "mkdocs-video",
+    "mkdocs-glightbox",
+    "mdx-truly-sane-lists",
+    "mkdocstrings",
+    "mkdocstrings-python",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.2,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = [
+    "glue_work_bot",
+]
+
+[tool.coverage.run]
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.pytest.ini_options]
+cache_dir = ".tmp/.pytest_cache"
+testpaths = ["test"]
+addopts = """
+    --cov=glue_work_bot
+    --cov=glue_work_test
+    --cov-report=term
+    --cov-report=xml
+    --capture=no
+    --cov-branch
+    --cache-clear
+"""
