@@ -4,28 +4,21 @@ class ConfigHandler:
     def __init__(self, config_path):
         self.config_path = config_path
         self.config = None
-        self.load_exception = None
-        self.required_fields = ['urls']
 
-    def load_config(self): # Returns True if successful, otherwise returns False
-        try:
-            with open(self.config_path, 'r') as f:
-                self.config = yaml.safe_load(f)
-                missing = [key for key in self.required_fields if key not in self.config]
-                if missing:
-                    self.load_exception = "Missing required fields in config.\nRequired fields:"
-                    for field in self.required_fields:
-                        self.load_exception += "\n" + field
-                return not missing
-        except Exception as e:
-            self.load_exception = e
-            return False
-
-    def get_urls(self):
-        return self.config.get('urls', [])
+    def load_config(self):
+        with open(self.config_path, 'r') as f:
+            self.config = yaml.safe_load(f)
 
     def get_excluded_users(self):
-        return self.config.get('exclude_users', [])
+        users = self.config.get('excluded_users', [])
+        return users or []
 
-    def get_load_exception(self):
-        return self.load_exception
+    def get_top_count(self):
+        return self.config.get('top_count', 10)
+
+    def get_retrieved_days(self):
+        return self.config.get('retrieved_days', 30)
+
+    def get_repository(self):
+        repo = self.config.get('repository', "")
+        return repo or ""

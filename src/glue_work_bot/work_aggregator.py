@@ -1,11 +1,15 @@
 from output_handler import OutputHandler
-from data_scraper import DataScraper
+from config_handler import ConfigHandler
 from classifier_agents import GlueWorkType
 from datetime import datetime, timezone
-import argparse
 
 class WorkAggregator():
-    def __init__(self):
+    def __init__(self, config_file, output_dir):
+        config_handler = ConfigHandler(config_file)
+        config_handler.load_config()
+        self.retrieved_days = config_handler.get_retrieved_days()
+        self.output_dir = output_dir
+        self.config_handler = config_handler
         self.authors = {}
 
     def add_work(self, author, glue_work_type):
@@ -16,7 +20,7 @@ class WorkAggregator():
 
     def get_contributor_list(self):
         current_utc_datetime = datetime.now(timezone.utc)
-        contributors_str = f"[{current_utc_datetime}]\n\nData from past {DataScraper.RETRIEVED_DAYS} days.\n# Glue Work Contributor List #"
+        contributors_str = f"[{current_utc_datetime}]\n\nData from past {self.retrieved_days} days.\n# Glue Work Contributor List"
         for author in self.authors.keys():
             contributors_str += f"\n- {author}"
         return contributors_str
@@ -29,13 +33,15 @@ class WorkAggregator():
                     total_count += count
         return total_count
 
-    def get_top_contributors(self, glue_work_type, top_n=10):
+    def get_top_contributors(self, glue_work_type):
         contributors = {}
         for author, glue_work in self.authors.items():
             if glue_work_type in glue_work:
                 contributors[author] = glue_work[glue_work_type]
 
         sorted_contributors = sorted(contributors.items(), key=lambda x: x[1], reverse=True)
+
+        top_n = self.config_handler.get_top_count()
 
         if len(sorted_contributors) <= top_n:
             cutoff = 0
@@ -48,10 +54,14 @@ class WorkAggregator():
 
     def get_glue_work_report(self):
         current_utc_datetime = datetime.now(timezone.utc)
-        report_str = f"[{current_utc_datetime}]\n\nData from past {DataScraper.RETRIEVED_DAYS} days.\n# Glue Work Report #"
+        report_str = f"[{current_utc_datetime}]\n\nData from past {self.retrieved_days} days.\n# Glue Work Report"
         for glue_work_type in GlueWorkType:
+
+            if glue_work_type == GlueWorkType.UNKNOWN or glue_work_type == GlueWorkType.COMMUNITY_MANAGMENT:
+                continue
+
             total_count = self.get_glue_work_contribution_count(glue_work_type)
-            report_str += f"\n## {glue_work_type.get_label()} ##"
+            report_str += f"\n## {glue_work_type.get_label()}"
             items = self.get_top_contributors(glue_work_type).items()
             if len(items) == 0:
                 report_str += f"\nNone"
@@ -62,9 +72,5 @@ class WorkAggregator():
         return report_str
 
     def output_work(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--output-dir', required=True)
-        args = parser.parse_args()
-        output_dir = args.output_dir
-        output_handler = OutputHandler(output_dir, self.get_contributor_list(), self.get_glue_work_report())
+        output_handler = OutputHandler(self.output_dir, self.get_contributor_list(), self.get_glue_work_report())
         output_handler.save_output()

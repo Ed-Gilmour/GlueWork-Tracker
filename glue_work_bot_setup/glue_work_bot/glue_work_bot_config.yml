@@ -1,6 +1,9 @@
-urls:
-  - https://github.com/Ed-Gilmour/Bot-Test-Repo
+retrieved_days: 30
 
-exclude_users:
-# EXAMPLE:
+top_count: 10
+
+repository: # EXAMPLE (defaults to current repository): flutter/flutter
+
+excluded_users:
+# EXAMPLE (list):
 # - unwanted-bot-name

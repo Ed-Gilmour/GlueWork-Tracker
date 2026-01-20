@@ -1,49 +1,39 @@
-from classifier_agents import CodeAgent, MentoringAgent, CommunityAgent, GlueWorkType
+from classifier_agents import CodeAgent, MentoringAgent, GlueWorkType
 from work_aggregator import WorkAggregator
+import argparse
 
 class WorkDistributor:
     def __init__(self, data):
-        self.aggregator = WorkAggregator()
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--output-dir', required=True)
+        parser.add_argument('--config-file', required=True)
+        args = parser.parse_args()
+        output_dir = args.output_dir
+        config_file = args.config_file
+        self.aggregator = WorkAggregator(config_file, output_dir)
         self.data = data
 
     def distribute_work(self):
         github_data = self.data["github"]
-        stackexchange_data = self.data["stackexchange"]
         code_agent = CodeAgent(self.aggregator)
         for i in range(len(github_data["issues"])):
             issue = github_data["issues"][i]
-            classification = GlueWorkType.UNKNOWN
-            if i < 3:
-                classification = code_agent.classify_data(code_agent.get_issue_prompt(issue))
+            classification = code_agent.classify_code_text(issue["body"])
             self.aggregator.add_work(issue["author"], classification)
         for i in range(len(github_data["pull_requests"])):
             pull_request = github_data["pull_requests"][i]
-            classification = GlueWorkType.UNKNOWN
-            if i < 3:
-                classification = code_agent.classify_data(code_agent.get_pull_request_prompt(pull_request))
+            classification = code_agent.classify_code_text(pull_request["body"])
             self.aggregator.add_work(pull_request["author"], classification)
         for i in range(len(github_data["commits"])):
             commit = github_data["commits"][i]
-            classification = GlueWorkType.UNKNOWN
-            if i < 3:
-                classification = code_agent.classify_data(code_agent.get_commit_prompt(commit))
+            classification = code_agent.classify_code_text(commit["message"])
             self.aggregator.add_work(commit["author"], classification)
 
         mentoring_agent = MentoringAgent(self.aggregator)
         for i in range(len(github_data["comments"])):
             comment = github_data["comments"][i]
-            classification = GlueWorkType.UNKNOWN
-            if i < 3:
-                classification = mentoring_agent.classify_data(mentoring_agent.get_comment_prompt(comment))
+            classification = mentoring_agent.classify_mentoring_text(comment["body"])
             self.aggregator.add_work(comment["author"], classification)
-
-        community_agent = CommunityAgent(self.aggregator)
-        for i in range(len(stackexchange_data["replies"])):
-            post = stackexchange_data["replies"][i]
-            classification = GlueWorkType.UNKNOWN
-            if i < 3:
-                classification = community_agent.classify_data(community_agent.get_community_managment_prompt(post))
-            self.aggregator.add_work(post["author"], classification)
 
         for i in range(len(github_data["reviews"])):
             review = github_data["reviews"][i]

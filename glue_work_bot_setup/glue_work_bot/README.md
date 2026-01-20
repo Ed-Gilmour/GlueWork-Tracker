@@ -1,7 +1,11 @@
-## Instructions ##
-Here are a list of ways you can configure the Glue Work Tracker Bot.
-1. In the glue_work_bot_config.yml you can configure the URLs to provide where to access information on Glue Work contributors.
-2. In the glue_work_bot_config.yml you can also configure the exclude_users to exclude users/bots from the search by name.
-3. In the workflows folder with run_glue_work_bot.yml configure the cron schedule to adjust how often it runs.
+## Instructions
 
-Note: If there are any issues with the config file the outputted files will contain information about the error.
+Here are the ways you can configure the Glue Work Tracker Bot:
+
+1. In `glue_work_bot_config.yml`, you can configure the bot in a few ways:
+    1. `retrieved_days` – set the number of retrieved days.
+    2. `top_count` – set the number of contributors shown at the top of each category.
+    3. `repository` – optionally collect data from a separate repository.
+    4. `excluded_users` – exclude users/bots from the search by name.
+
+2. In the `workflows` folder, edit `run_glue_work_bot.yml` to configure the cron schedule and adjust how often it runs.

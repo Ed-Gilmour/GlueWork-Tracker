@@ -1,0 +1,11 @@
+retrieved_days: 30
+
+top_count: 10
+
+repository: flutter/flutter
+
+excluded_users:
+- flutter-pub-roller-bot
+- engine-flutter-autoroll
+- flutteractionsbot
+- fluttergithubbot
