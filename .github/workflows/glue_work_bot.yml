@@ -44,6 +44,7 @@ jobs:
           repo-path: "gluework_repo"
 
       - name: Install dependencies
+        working-directory: gluework_repo
         run: uv sync
 
       - name: Scrape Glue Work Data
