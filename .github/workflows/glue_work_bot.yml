@@ -37,7 +37,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-deps-
 
-      - uses: ./.github/actions/setup-environment
+      - uses: ./gluework_repo/.github/actions/setup-environment
         id: runner-context
         with:
           install-uv: true
