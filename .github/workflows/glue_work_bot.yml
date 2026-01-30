@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Ed-Gilmour/GlueWork-Tracker
-          ref: main
+          ref: feature/dev-tooling
           path: gluework_repo
 
       - name: Cache dependencies
