@@ -41,6 +41,7 @@ jobs:
         id: runner-context
         with:
           install-uv: true
+          repo-path: "gluework_repo"
 
       - name: Install dependencies
         run: uv sync

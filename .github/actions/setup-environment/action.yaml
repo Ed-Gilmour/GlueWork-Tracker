@@ -6,6 +6,9 @@ inputs:
     description: install the global uv cli command
     required: true
     default: ""
+  repo-path:
+    description: "path to the checked out GlueWork-Tracker repo"
+    default: "."
 outputs:
   package-version:
     description: "a generated version usable for publishing packages and containers"
@@ -36,12 +39,13 @@ runs:
         IS_MAIN_BUILD: "${{ github.event_name == 'push' && '1' || '0' }}"
         BASE_SHA: "${{ github.event.pull_request.base.sha || github.event.before }}"
         HEAD_SHA: "${{ github.event.pull_request.head.sha || github.event.after }}"
+        REPO_PATH: "${{ inputs.repo-path }}"
       run: |
         # make sure people are able to use packages installed with uv
         export PATH="${HOME}/.local/bin:$PATH"
         echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
-        TOML_VERSION=$(grep -m 1 version pyproject.toml | tr -s " " | tr -d '"' | tr -d "'" | cut -d" " -f3)
+        TOML_VERSION=$(grep -m 1 version ${REPO_PATH}/pyproject.toml | tr -s " " | tr -d '"' | tr -d "'" | cut -d" " -f3)
         MAIN_BUILD_VERSION="$TOML_VERSION.pre$RUN_ID"
         PR_BUILD_VERSION="$(date --date "$COMMIT_TIMESTAMP" "+$TOML_VERSION.pre$RUN_ID.dev%Y%m%d%H%M%S")"
         
