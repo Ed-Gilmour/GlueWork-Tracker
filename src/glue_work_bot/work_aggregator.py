@@ -1,6 +1,6 @@
-from output_handler import OutputHandler
-from config_handler import ConfigHandler
-from classifier_agents import GlueWorkType
+from glue_work_bot.output_handler import OutputHandler
+from glue_work_bot.config_handler import ConfigHandler
+from glue_work_bot.classifier_agents import GlueWorkType
 from datetime import datetime, timezone
 
 

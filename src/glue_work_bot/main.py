@@ -1,4 +1,4 @@
-from work_distributor import WorkDistributor
+from glue_work_bot.work_distributor import WorkDistributor
 import json
 
 

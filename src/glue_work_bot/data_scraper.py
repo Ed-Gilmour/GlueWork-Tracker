@@ -30,11 +30,6 @@ class DataScraper:
         with open(file_path, "w") as f:
             json.dump(existing_data, f)
 
-    def scrape_stackexchange_data(self):
-        self.write_data(
-            self.stackexchange_scraper.scrape_stackexchange_data(), "stackexchange"
-        )
-
     def scrape_github_data(self):
         self.write_data(self.github_scraper.scrape_github_data(), "github")
 
@@ -119,7 +114,7 @@ class StackExchangeScraper:
 
 
 class GitHubScraper:
-    def __init__(self, config_handler=None):
+    def __init__(self, config_handler):
         load_dotenv()
         self.github_token = os.getenv("GITHUB_TOKEN")
         repo = config_handler.get_repository()
