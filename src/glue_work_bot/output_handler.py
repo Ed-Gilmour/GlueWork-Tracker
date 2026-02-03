@@ -1,6 +1,7 @@
 import os
 
-class OutputHandler():
+
+class OutputHandler:
     def __init__(self, output_dir, contributor_list, glue_work_report):
         self.output_dir = output_dir
         self.contributor_list = contributor_list

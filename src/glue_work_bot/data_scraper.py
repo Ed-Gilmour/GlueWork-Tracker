@@ -1,11 +1,12 @@
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
-from config_handler import ConfigHandler
+from glue_work_bot.config_handler import ConfigHandler
 import os
 import requests
 import json
 import argparse
 import time
+
 
 class DataScraper:
     def __init__(self, config_handler):
@@ -30,10 +31,13 @@ class DataScraper:
             json.dump(existing_data, f)
 
     def scrape_stackexchange_data(self):
-        self.write_data(self.stackexchange_scraper.scrape_stackexchange_data(), "stackexchange")
+        self.write_data(
+            self.stackexchange_scraper.scrape_stackexchange_data(), "stackexchange"
+        )
 
     def scrape_github_data(self):
         self.write_data(self.github_scraper.scrape_github_data(), "github")
+
 
 class StackExchangeScraper:
     COMMUNITY_TAG = "Example"
@@ -76,7 +80,7 @@ class StackExchangeScraper:
         chunk_size = 20
 
         for i in range(0, len(question_ids), chunk_size):
-            chunk = question_ids[i:i+chunk_size]
+            chunk = question_ids[i : i + chunk_size]
             ids_str = ";".join(map(str, chunk))
 
             url = f"{self.base_url}/questions/{ids_str}/answers"
@@ -85,7 +89,7 @@ class StackExchangeScraper:
                 "sort": "creation",
                 "site": self.site,
                 "pagesize": 100,
-                "filter": "withbody"
+                "filter": "withbody",
             }
 
             response = requests.get(url, params=params)
@@ -106,12 +110,13 @@ class StackExchangeScraper:
             "replies": [
                 {
                     "body": a.get("body", ""),
-                    "author": a["owner"].get("display_name", "Unknown")
+                    "author": a["owner"].get("display_name", "Unknown"),
                 }
                 for a in answers
             ]
         }
         return data
+
 
 class GitHubScraper:
     def __init__(self, config_handler=None):
@@ -122,7 +127,7 @@ class GitHubScraper:
         self.base_url = f"https://api.github.com/repos/{self.repo}"
         self.headers = {
             "Authorization": f"Bearer {self.github_token}",
-            "Accept": "application/vnd.github.v3+json"
+            "Accept": "application/vnd.github.v3+json",
         }
         self.excluded_users = config_handler.get_excluded_users()
         self.retrieved_days = config_handler.get_retrieved_days()
@@ -130,12 +135,7 @@ class GitHubScraper:
 
     def github_request(self, session, method, url, **kwargs):
         while True:
-            response = session.request(
-                method,
-                url,
-                headers=self.headers,
-                **kwargs
-            )
+            response = session.request(method, url, headers=self.headers, **kwargs)
 
             if response.status_code == 200:
                 return response
@@ -164,12 +164,7 @@ class GitHubScraper:
             query["per_page"] = 100
             query["page"] = page
 
-            response = self.github_request(
-                session,
-                "GET",
-                url,
-                params=query
-            )
+            response = self.github_request(session, "GET", url, params=query)
 
             if response is None:
                 break
@@ -193,36 +188,12 @@ class GitHubScraper:
             "state": "all",
             "direction": "desc",
             "sort": "updated",
-            "sha": branch
+            "sha": branch,
         }
 
         url = self.base_url + "/" + item_type
 
         return self.github_paginate(url=url, params=params)
-
-    def get_issue_comments(self, issues):
-        comments = []
-        session = requests.Session()
-
-        for issue in issues:
-            if issue.get("comments", 0) == 0:
-                continue
-
-            response = self.github_request(
-                session,
-                "GET",
-                issue["comments_url"]
-            )
-
-            if response is None:
-                continue
-
-            comments.extend(response.json())
-
-        return [
-            c for c in comments
-            if self.is_user_valid(c["user"])
-        ]
 
     def get_documentation_license_authors(self, commits):
         doc_authors = []
@@ -252,14 +223,9 @@ class GitHubScraper:
             if issue.get("comments", 0) == 0:
                 continue
 
-            comments.extend(
-                self.github_paginate(issue["comments_url"])
-            )
+            comments.extend(self.github_paginate(issue["comments_url"]))
 
-        return [
-            c for c in comments
-            if self.is_user_valid(c["user"])
-        ]
+        return [c for c in comments if self.is_user_valid(c["user"])]
 
     def get_pull_request_reviews(self, issues):
         reviews = []
@@ -287,10 +253,7 @@ class GitHubScraper:
 
     def scrape_github_data(self):
         issues = self.get_requests_updated_since(item_type="issues")
-        pull_requests = [
-            issue for issue in issues
-            if "pull_request" in issue
-        ]
+        pull_requests = [issue for issue in issues if "pull_request" in issue]
         pull_request_reviews = self.get_pull_request_reviews(issues=issues)
         commits = self.get_requests_updated_since(item_type="commits")
         comments = self.get_issue_comments(issues=issues)
@@ -302,59 +265,62 @@ class GitHubScraper:
                 {
                     "title": issue["title"],
                     "body": issue.get("body", ""),
-                    "author": issue["user"]["login"]
-                } for issue in issues
+                    "author": issue["user"]["login"],
+                }
+                for issue in issues
                 if self.is_user_valid(issue["user"])
             ],
             "pull_requests": [
                 {
                     "title": pr["title"],
                     "body": pr.get("body", ""),
-                    "author": pr["user"]["login"]
-                } for pr in pull_requests
+                    "author": pr["user"]["login"],
+                }
+                for pr in pull_requests
                 if self.is_user_valid(pr["user"])
             ],
             "commits": [
                 {
                     "message": commit["commit"]["message"],
-                    "author": commit["author"]["login"]
-                } for commit in commits
+                    "author": commit["author"]["login"],
+                }
+                for commit in commits
                 if self.is_user_valid(commit["author"])
             ],
             "reviews": [
-                {
-                    "author": review["login"]
-                } for review in pull_request_reviews
+                {"author": review["login"]}
+                for review in pull_request_reviews
                 if self.is_user_valid(review)
             ],
             "comments": [
-                {
-                    "body": comment["body"],
-                    "author": comment["user"]["login"]
-                } for comment in comments
+                {"body": comment["body"], "author": comment["user"]["login"]}
+                for comment in comments
                 if self.is_user_valid(comment["user"])
             ],
             "documentation": [
-                {
-                    "author": author["login"]
-                } for author in doc_authors
+                {"author": author["login"]}
+                for author in doc_authors
                 if self.is_user_valid(author)
             ],
             "license": [
-                {
-                    "author": author["login"]
-                } for author in lic_authors
+                {"author": author["login"]}
+                for author in lic_authors
                 if self.is_user_valid(author)
-            ]
+            ],
         }
         return data
 
     def is_user_valid(self, user):
-        return user["login"] is not None and user["login"] not in self.excluded_users and user["type"] != "Bot"
+        return (
+            user["login"] is not None
+            and user["login"] not in self.excluded_users
+            and user["type"] != "Bot"
+        )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config-file', required=True)
+    parser.add_argument("--config-file", required=True)
     args = parser.parse_args()
     config_file = args.config_file
     config_handler = ConfigHandler(config_file)

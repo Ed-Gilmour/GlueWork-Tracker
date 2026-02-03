@@ -7,16 +7,26 @@ import os
 import faiss
 import json
 
+
 class DataPaths:
     def __init__(self, name):
         script_dir = Path(__file__).parent
-        self.training_path = script_dir / f"training_data/{name}/{name}_training_dataset.csv"
+        self.training_path = (
+            script_dir / f"training_data/{name}/{name}_training_dataset.csv"
+        )
         self.data_path = script_dir / f"cached_data/{name}/{name}_data.json"
         self.index_path = script_dir / f"cached_data/{name}/{name}_index.faiss"
-        self.test_csv_path = script_dir / f"training_data/{name}/{name}_test_dataset.csv"
+        self.test_csv_path = (
+            script_dir / f"training_data/{name}/{name}_test_dataset.csv"
+        )
         self.test_data_path = script_dir / f"cached_data/{name}/{name}_test_data.json"
-        self.training_test_data_path = script_dir / f"cached_data/{name}/{name}_training_test_data.json"
-        self.test_index_path = script_dir / f"cached_data/{name}/{name}_test_index.faiss"
+        self.training_test_data_path = (
+            script_dir / f"cached_data/{name}/{name}_training_test_data.json"
+        )
+        self.test_index_path = (
+            script_dir / f"cached_data/{name}/{name}_test_index.faiss"
+        )
+
 
 class VectorIndexer:
     def __init__(self, name):
@@ -46,16 +56,25 @@ class VectorIndexer:
     def search(self, query_text, k=1):
         query_embedding = self.model.encode([query_text]).astype("float32")
         distances, indices = self.index.search(query_embedding, k)
-        return [(list(self.data.keys())[i], distances[0][idx]) for idx, i in enumerate(indices[0])]
+        return [
+            (list(self.data.keys())[i], distances[0][idx])
+            for idx, i in enumerate(indices[0])
+        ]
 
-    def save_csv_data(self, csv_path, key_name, value_name, data_path, split=0, label="", is_test=False):
+    def save_csv_data(
+        self,
+        csv_path,
+        key_name,
+        value_name,
+        data_path,
+        split=0,
+        label="",
+        is_test=False,
+    ):
         df = pd.read_csv(csv_path)
         if split != 0:
             train_df, test_df = train_test_split(
-                df,
-                test_size=split,
-                stratify=df[label],
-                random_state=42
+                df, test_size=split, stratify=df[label], random_state=42
             )
             if is_test:
                 self.data = dict(zip(test_df[key_name], test_df[value_name]))
@@ -78,7 +97,9 @@ class VectorIndexer:
         self.csv_data = pd.DataFrame(df)
 
     def store_data(self):
-        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.data_path)
+        self.save_csv_data(
+            self.paths.training_path, "comments", self.name, self.paths.data_path
+        )
         self.build_index(self.encode_texts())
         self.save_index(self.paths.index_path)
 
@@ -87,7 +108,15 @@ class VectorIndexer:
         self.load_index(self.paths.index_path)
 
     def store_test_data(self):
-        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.test_data_path, 0.2, self.name, True)
+        self.save_csv_data(
+            self.paths.training_path,
+            "comments",
+            self.name,
+            self.paths.test_data_path,
+            0.2,
+            self.name,
+            True,
+        )
 
     def save_test_csv_data(self, new_column):
         self.csv_data["Predicted"] = new_column
@@ -95,7 +124,15 @@ class VectorIndexer:
         self.csv_data.to_csv(self.paths.test_csv_path, index=False)
 
     def store_training_test_data(self):
-        self.save_csv_data(self.paths.training_path, "comments", self.name, self.paths.training_test_data_path, 0.2, self.name, False)
+        self.save_csv_data(
+            self.paths.training_path,
+            "comments",
+            self.name,
+            self.paths.training_test_data_path,
+            0.2,
+            self.name,
+            False,
+        )
         self.build_index(self.encode_texts())
         self.save_index(self.paths.test_index_path)
 

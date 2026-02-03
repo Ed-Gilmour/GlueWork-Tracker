@@ -2,6 +2,7 @@ import csv
 from data_scraper import GitHubScraper
 from pathlib import Path
 
+
 class TrainingDataCollector:
     def __init__(self):
         self.data_scraper = GitHubScraper()
@@ -16,7 +17,8 @@ class TrainingDataCollector:
         rows = [
             {
                 "body": comment["body"],
-            } for comment in comments
+            }
+            for comment in comments
             if self.data_scraper.is_user_valid(comment["user"])
         ]
 
@@ -25,7 +27,10 @@ class TrainingDataCollector:
             writer.writeheader()
             writer.writerows(rows)
 
+
 if __name__ == "__main__":
     collector = TrainingDataCollector()
     SCRIPT_DIR = Path(__file__).parent
-    collector.collect_issue_data(SCRIPT_DIR / "training_data/mentoring/mentoring_dataset.csv")
+    collector.collect_issue_data(
+        SCRIPT_DIR / "training_data/mentoring/mentoring_dataset.csv"
+    )
