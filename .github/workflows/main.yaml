@@ -53,4 +53,5 @@ jobs:
       - codeql
     with:
       sha: ${{ inputs.sha || github.sha }}
-      publish-docs: ${{ github.ref_name == 'main' }}
+      publish-docs: false  # disabled until we iterate on docs more
+#      publish-docs: ${{ github.ref_name == 'main' }}
