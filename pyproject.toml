@@ -60,3 +60,13 @@ addopts = """
     --cov-branch
     --cache-clear
 """
+
+[tool.ruff]
+include = [
+    "src/**/*.py",
+    "test/**/*.py",
+    "pyproject.toml",
+]
+fix = true
+show-fixes = true
+output-format = "full"

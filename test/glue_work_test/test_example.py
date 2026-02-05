@@ -3,4 +3,4 @@ from types import ModuleType
 
 
 def test_nothing() -> None:
-    assert type(glue_work_bot) == ModuleType
+    assert type(glue_work_bot) is ModuleType
