@@ -1,9 +1,10 @@
-from output_handler import OutputHandler
-from config_handler import ConfigHandler
-from classifier_agents import GlueWorkType
+from glue_work_bot.output_handler import OutputHandler
+from glue_work_bot.config_handler import ConfigHandler
+from glue_work_bot.classifier_agents import GlueWorkType
 from datetime import datetime, timezone
 
-class WorkAggregator():
+
+class WorkAggregator:
     def __init__(self, config_file, output_dir):
         config_handler = ConfigHandler(config_file)
         config_handler.load_config()
@@ -14,9 +15,11 @@ class WorkAggregator():
 
     def add_work(self, author, glue_work_type):
         if author in self.authors:
-            self.authors[author][glue_work_type] = self.authors[author].get(glue_work_type, 0) + 1
+            self.authors[author][glue_work_type] = (
+                self.authors[author].get(glue_work_type, 0) + 1
+            )
         else:
-            self.authors[author] = { glue_work_type: 1 }
+            self.authors[author] = {glue_work_type: 1}
 
     def get_contributor_list(self):
         current_utc_datetime = datetime.now(timezone.utc)
@@ -39,7 +42,9 @@ class WorkAggregator():
             if glue_work_type in glue_work:
                 contributors[author] = glue_work[glue_work_type]
 
-        sorted_contributors = sorted(contributors.items(), key=lambda x: x[1], reverse=True)
+        sorted_contributors = sorted(
+            contributors.items(), key=lambda x: x[1], reverse=True
+        )
 
         top_n = self.config_handler.get_top_count()
 
@@ -48,7 +53,9 @@ class WorkAggregator():
         else:
             cutoff = sorted_contributors[top_n - 1][1]
 
-        top_contributors = {author: count for author, count in sorted_contributors if count >= cutoff}
+        top_contributors = {
+            author: count for author, count in sorted_contributors if count >= cutoff
+        }
 
         return top_contributors
 
@@ -56,15 +63,17 @@ class WorkAggregator():
         current_utc_datetime = datetime.now(timezone.utc)
         report_str = f"[{current_utc_datetime}]\n\nData from past {self.retrieved_days} days.\n# Glue Work Report"
         for glue_work_type in GlueWorkType:
-
-            if glue_work_type == GlueWorkType.UNKNOWN or glue_work_type == GlueWorkType.COMMUNITY_MANAGMENT:
+            if (
+                glue_work_type == GlueWorkType.UNKNOWN
+                or glue_work_type == GlueWorkType.COMMUNITY_MANAGMENT
+            ):
                 continue
 
             total_count = self.get_glue_work_contribution_count(glue_work_type)
             report_str += f"\n## {glue_work_type.get_label()}"
             items = self.get_top_contributors(glue_work_type).items()
             if len(items) == 0:
-                report_str += f"\nNone"
+                report_str += "\nNone"
             else:
                 for author, count in items:
                     percent = (count / total_count) * 100
@@ -72,5 +81,7 @@ class WorkAggregator():
         return report_str
 
     def output_work(self):
-        output_handler = OutputHandler(self.output_dir, self.get_contributor_list(), self.get_glue_work_report())
+        output_handler = OutputHandler(
+            self.output_dir, self.get_contributor_list(), self.get_glue_work_report()
+        )
         output_handler.save_output()

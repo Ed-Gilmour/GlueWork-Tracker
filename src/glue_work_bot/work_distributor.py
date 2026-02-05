@@ -1,12 +1,13 @@
-from classifier_agents import CodeAgent, MentoringAgent, GlueWorkType
-from work_aggregator import WorkAggregator
+from glue_work_bot.classifier_agents import CodeAgent, MentoringAgent, GlueWorkType
+from glue_work_bot.work_aggregator import WorkAggregator
 import argparse
+
 
 class WorkDistributor:
     def __init__(self, data):
         parser = argparse.ArgumentParser()
-        parser.add_argument('--output-dir', required=True)
-        parser.add_argument('--config-file', required=True)
+        parser.add_argument("--output-dir", required=True)
+        parser.add_argument("--config-file", required=True)
         args = parser.parse_args()
         output_dir = args.output_dir
         config_file = args.config_file
@@ -40,7 +41,9 @@ class WorkDistributor:
             self.aggregator.add_work(review["author"], GlueWorkType.CODE_REVIEW)
         for i in range(len(github_data["documentation"])):
             documentation = github_data["documentation"][i]
-            self.aggregator.add_work(documentation["author"], GlueWorkType.DOCUMENTATION)
+            self.aggregator.add_work(
+                documentation["author"], GlueWorkType.DOCUMENTATION
+            )
         for i in range(len(github_data["license"])):
             license = github_data["license"][i]
             self.aggregator.add_work(license["author"], GlueWorkType.LICENSE)
