@@ -1,3 +1,5 @@
+https://chaoss.community/glue-work/
+
 # Glue Work Tracker Bot
 This GitHub bot is for analyzing Glue Work contributions contributors have made in OSS projects. It will analyze and output two files with one showing a list of Glue Work contributors, and another quanitfying their work. It will run once a month (configurable) or when you run it manually.
 
